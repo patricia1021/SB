@@ -1,17 +1,21 @@
 ; Teste    1
 ; Área do Triângulo em Assembly Inventado
 
-0	Input B
-2	Input H
-4	Load B
-6	Mul K
-8	Div 2ois
-10	Store R
-12	Output R
-14	Stop
-15	B: Space
-16	H: Space
-17	R: Space
-18	2ois: Const 2.0
+SECTION TEXT
+input B
+INUPT H
+; testando case sensitive
+Load B
+Mul K
+Div 2ois
+Store R
+Output R
+sTOP
+
+SECTION DATA
+B: Space
+H: Space
+R: Space
+2ois: Const 2.0
 ; rótulo começando com número
 ;número no é inteiro nem hexa
