@@ -12,4 +12,6 @@
 15	B: Space
 16	H: Space
 17	R: Space
-18	2ois: Const 2
+18	2ois: Const 2.0
+; rótulo começando com número
+;número no é inteiro nem hexa
