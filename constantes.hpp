@@ -18,6 +18,23 @@ using namespace std;
 #define OUTPUT 13
 #define STOP 14
 
+// identificador de error
+
+// sintaticos
+#define ERRO_SINTATICO 1
+#define WRONG_ARG_NUM -1
+#define INSTRUCTION_NOT_FOUND -2
+
+// semanticos
+#define ERRO_SEMANTICO 2
+#define TOKEN_ALREADY_EXISTS -15
+#define WRONG_ARG_TYPE -16
+
+// lexicos
+#define ERRO_LEXICO 3
+#define WRONG_TOKEN_FORMAT -30
+
+
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
 #define YEL   "\x1B[33m"
@@ -33,6 +50,8 @@ const string FLAG_O = "-o";
 const string FLAG_P = "-p";
 const string EQU = "EQU";
 const string IF = "IF";
+const string SPACE = "SPACE";
+const string CONST = "CONST";
 const string SYNTAX_ERROR = "Syntax error: ";
 const string SEMANTIC_ERROR = "Semantic error: ";
 const string SECTION_TEXT = "SECTION TEXT";

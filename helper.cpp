@@ -5,6 +5,8 @@
 #include <string.h>
 #include <vector>
 #include <algorithm>
+#include <locale>
+#include <functional>
 
 #ifndef HELPER_CPP
 #define HELPER_CPP
@@ -17,7 +19,6 @@ bool in_array(const std::string &value, const std::vector<string> &array)
 {
 	return std::find(array.begin(), array.end(), value) != array.end();
 }
-
 
 std::string trim(const std::string& str,
 		const std::string& whitespace = " \t")
@@ -59,18 +60,48 @@ std::string reduce(const std::string& str,
  * delimitador passado como argumento
  * *****************************************************************************/
 void split(const string &s, const char* delim, vector<string> & v){
-    // to avoid modifying original string
-    // first duplicate the original string and return a char pointer then free the memory
+	// to avoid modifying original string
+	// first duplicate the original string and return a char pointer then free the memory
 	v.clear();
-    char * dup = strdup(s.c_str());
-    char * token = strtok(dup, delim);
-    while(token != NULL){
-        v.push_back(string(token));
-        // the call is treated as a subsequent calls to strtok:
-        // the function continues from where it left in previous invocation
-        token = strtok(NULL, delim);
-    }
-    free(dup);
+	char * dup = strdup(s.c_str());
+	char * token = strtok(dup, delim);
+	while(token != NULL){
+		v.push_back(string(token));
+		// the call is treated as a subsequent calls to strtok:
+		// the function continues from where it left in previous invocation
+		token = strtok(NULL, delim);
+	}
+	free(dup);
+}
+
+/*******************************************************************************
+ * verifica se string eh um numero exadecimal
+ * *****************************************************************************/
+bool is_hex_string(std::string& str) {
+	vector<string> v;
+	const char *c = "X";
+	split(str, c, v);
+	if(v.size() > 2 || v[0] != "0") return 0;
+	int is_x = 1;
+
+	for(auto &x:v[1]) {
+		cout <<  x << " - " << isxdigit(x) << endl;
+		if(!isxdigit(x)) return 0;
+	}
+
+	return 1;
+	/* return std::count_if(str.begin(), str.end(), */
+	/*   std::not1(std::ptr_fun((int(*)(int))std::isxdigit))) > 0; */
+}
+
+bool is_number(const std::string& s)
+{
+	string str;
+	str = s;
+	if(s[0] == '-')
+		str = s.substr(1, s.length()+1);
+    return !str.empty() && std::find_if(str.begin(),
+        str.end(), [](char c) { return !std::isdigit(c); }) == str.end();
 }
 
 void to_uppercase(string &str){
