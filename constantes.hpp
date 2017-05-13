@@ -56,5 +56,8 @@ const string SYNTAX_ERROR = "Syntax error: ";
 const string SEMANTIC_ERROR = "Semantic error: ";
 const string SECTION_TEXT = "SECTION TEXT";
 const string SECTION_DATA = "SECTION DATA";
+const string BEGIN = "BEGIN";
+const string EXTERN = "EXTERN";
+const string PUBLIC = "PUBLIC";
 
 #endif
