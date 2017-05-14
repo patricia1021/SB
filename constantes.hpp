@@ -5,12 +5,12 @@ using namespace std;
 
 #define ADD 1
 #define SUB 2
-#define MULT 3
+#define MUL 3
 #define DIV 4
-#define JUMP 5
-#define JUMPN 6
-#define JUMPP 7
-#define JUMPZ 8
+#define JMP 5
+#define JMPN 6
+#define JMPP 7
+#define JMPZ 8
 #define COPY 9
 #define LOAD 10
 #define STORE 11
@@ -24,16 +24,23 @@ using namespace std;
 #define ERRO_SINTATICO 1
 #define WRONG_ARG_NUM -1
 #define INSTRUCTION_NOT_FOUND -2
+#define WRONG_ARG_TYPE -3
 
 // semanticos
 #define ERRO_SEMANTICO 2
 #define TOKEN_ALREADY_EXISTS -15
-#define WRONG_ARG_TYPE -16
+#define SECTIONS_IN_WRONG_ORDER -16
 
 // lexicos
 #define ERRO_LEXICO 3
 #define WRONG_TOKEN_FORMAT -30
 
+
+// validacao tokens
+#define TOKEN_TYPE_1 1
+#define TOKEN_TYPE_2 2
+#define TOKEN_TYPE_3 3
+#define TOKEN_TYPE_4 4
 
 #define RED   "\x1B[31m"
 #define GRN   "\x1B[32m"
@@ -59,5 +66,6 @@ const string SECTION_DATA = "SECTION DATA";
 const string BEGIN = "BEGIN";
 const string EXTERN = "EXTERN";
 const string PUBLIC = "PUBLIC";
+const string END = "END";
 
 #endif

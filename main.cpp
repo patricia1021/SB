@@ -113,7 +113,6 @@ int montagem(fstream &fonte, fstream &saida_pre, char *argv[]){
 void exec(int argc, char *argv[]){
 	fstream fonte;
 	fstream pre_processado;
-	fstream maquina;
 	string line;
 	int flag;
 
@@ -133,5 +132,4 @@ void exec(int argc, char *argv[]){
 	}
 	fonte.close();
 	pre_processado.close();
-	maquina.close();
 }

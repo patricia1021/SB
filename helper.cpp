@@ -85,15 +85,15 @@ bool is_hex_string(std::string& str) {
 	int is_x = 1;
 
 	for(auto &x:v[1]) {
-		cout <<  x << " - " << isxdigit(x) << endl;
 		if(!isxdigit(x)) return 0;
 	}
 
 	return 1;
-	/* return std::count_if(str.begin(), str.end(), */
-	/*   std::not1(std::ptr_fun((int(*)(int))std::isxdigit))) > 0; */
 }
 
+/*******************************************************************************
+ * verifica se string eh um numero Inteiro
+ * *****************************************************************************/
 bool is_number(const std::string& s)
 {
 	string str;
