@@ -1,10 +1,11 @@
 ; Teste    1
 ; Área do Triângulo em Assembly Inventado
+; testando case sensitive
 
 SECTION TEXT
 input B
 INUPT H
-; testando case sensitive
+; rótulo errado
 Load B
 Mul K
 Div 2ois

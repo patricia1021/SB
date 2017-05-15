@@ -10,8 +10,8 @@ definidos.*/
 
 #include <stdio.h>
 
-#ifndef MONTADOR_CPP
-#define MONTADOR_CPP
+#ifndef LIGADOR_CPP
+#define LIGADOR_CPP
 
 void ligador (int argc, char*argv[])
 {
@@ -46,3 +46,4 @@ void ligador (int argc, char*argv[])
   }
   return(0);
 }
+#endif
