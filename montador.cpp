@@ -27,19 +27,25 @@ typedef map<string, shared_ptr<Ts>> SimbolTable;
 // class com variaveis de configuracao da montagem
 class Config {
 	public:
+		// estruturas de dados
 		SimbolTable simbol_table;
 		map<int, int> memory;
 		map<string, int> instruction_table;
 		map<string, int> definition_table;
 		map<string, int> use_table;
-		int section_text_count = 0;
-		int section_data_count = 0;
 		map<int, int> inst_size_table;
 
+		// flags
 		int eh_modulo = 0;
 		int num_ends = 0;
 		int num_errors = 0;
+		int section_data_count = 0;
+		int section_text_count = 0;
 
+		// curent line being read from the code
+		string line;
+
+		// contados de linha e de endereco
 		int count_pos = 0;
 		int count_line = 1;
 
@@ -108,7 +114,10 @@ int monta_arquivo(fstream &fonte, string filename){
 	cout << BLU <<"==================================     MONTAGEM INICIADA    ===========================================" << endl << RESET;
 	primeira_passagem(fonte, c);
 	// so continua caso a primeira passagem esta livre de errors
-	if(!check_error(c)) return 0;
+	if(!check_error(c)) {
+		cout << RED << "Arquivo nao montado por contem erros, favor corrigir os erros e tentar novamente!!" RESET<<endl;
+		return 0;
+	}
 	/* segunda_passagem(fonte, c); */
 }
 /**************************************************************************
@@ -213,8 +222,10 @@ int primeira_passagem(fstream &fonte, Config &c){
 }
 
 
+/**************************************************************************
+ * funcao principal da segunda passagem do algoritmo de montagem
+ * ************************************************************************/
 int segunda_passagem(fstream &fonte, Config &c){
-
 	fonte.clear();
 	fonte.seekg(0, ios::beg);
 
@@ -250,6 +261,7 @@ int segunda_passagem(fstream &fonte, Config &c){
 			c.count_line++;
 			continue;
 		}
+		c.line = line;
 
 		split(line, delimiter, tokens); // separa os elementos da linha em tokens
 		token = tokens[0].substr(0, tokens[0].length() -1); // primeiro token da linha
@@ -269,13 +281,60 @@ int segunda_passagem(fstream &fonte, Config &c){
  * verifica se a primeira passagem contem erros, permitindo fazer a segunda passagem
  * **********************************************************************************/
 int check_error(Config &c){
-	return 1;
+	int result = 1;
+	if(c.eh_modulo > 0){
+		if(c.eh_modulo > 1){
+			c.err_type = ERRO_SEMANTICO;
+			c.err_subtype = EXCEEDED_BEGIN_NUM;
+			log_error(c);
+			result&=0;
+		}
+		if(c.num_ends == 0){
+			c.err_subtype = MISSING_END;
+			c.err_type = ERRO_SEMANTICO;
+			log_error(c);
+			result&=0;
+		}
+		if(c.num_ends > 1){
+			c.err_subtype = EXCEEDED_END_NUM;
+			c.err_type = ERRO_SEMANTICO;
+			log_error(c);
+			result&=0;
+		}
+	}
+	if(c.section_text_count == 0){
+		c.err_type = ERRO_SEMANTICO;
+		c.err_subtype = MISSING_SECTION_TEXT;
+		log_error(c);
+		result&=0;
+	}
+	if(c.section_text_count > 1){
+		c.err_type = ERRO_SEMANTICO;
+		c.err_subtype = EXCEEDED_SECTION_TEXT;
+		log_error(c);
+		result&=0;
+	}
+	if(c.section_data_count > 1){
+		c.err_type = ERRO_SEMANTICO;
+		c.err_subtype = EXCEEDED_SECTION_DATA;
+		log_error(c);
+		result&=0;
+	}
+	if(c.num_errors>0){
+		result&=0;
+	}
+	return result;
 }
 
+/**********************************************************************************
+ * verifica se a sessao de texto veio antes da sessao de dados
+ * *****************************************************************************/
 int check_sections_order(Config &c){
-	if(c.section_data_count > 0 && c.section_text_count == 0){
+	static int count = 0;
+	if(c.section_data_count > 0 && c.section_text_count == 0 && count == 0){
 		c.err_type = ERRO_SEMANTICO;
 		c.err_subtype = SECTIONS_IN_WRONG_ORDER;
+		count++;
 		log_error(c);
 	}
 }
@@ -373,38 +432,87 @@ int validate_token(string s, int option){
 int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 	string str;
 	int instr = 0;
-	int arg_start = 1;
-
 	if(line_has_label){
-		arg_start = 2;
 		str = tokens[1];
 		instr = get_instruction(c.instruction_table, str);
 		if(instr != 0){
 			if(instr == COPY){
-				return validate_copy(tokens[2], c);
+				switch(validate_copy(tokens[2], c)){
+					case WRONG_ARG_NUM:
+						c.err_type = ERRO_SINTATICO;
+						c.err_subtype = WRONG_ARG_NUM;
+						log_error(c);
+						break;
+					case 0:
+						c.err_type = ERRO_SEMANTICO;
+						c.err_subtype = MISSING_SIMBOL;
+						log_error(c);
+						break;
+				}
 			}
 			else if(instr = STOP){
 				return 1;
 			}
 			else {
 				Operand arg_1;
-				get_operando(str, arg_1);
-				return existe_label(c.simbol_table, arg_1.label);
+				get_operando(tokens[2], arg_1);
+				if(!existe_label(c.simbol_table, arg_1.label)){
+					c.err_type = ERRO_SEMANTICO;
+					c.err_subtype = MISSING_SIMBOL;
+					log_error(c);
+				}
 			}
 		}
-		else if(eh_diretiva(str)) {
+		else if(str == PUBLIC) {
+			Operand arg_1;
+			get_operando(tokens[2], arg_1);
+			if(!existe_label(c.simbol_table, arg_1.label)){
+				c.err_type = ERRO_SEMANTICO;
+				c.err_subtype = MISSING_SIMBOL;
+				log_error(c);
+			}
 			return 1;
 		}
-
 	}
 	else{
-		arg_start -=1;
 		str = tokens[0];
 		instr = get_instruction(c.instruction_table, str);
 		if(instr != 0){
-			return 1;
+			if(instr == COPY){
+				switch(validate_copy(tokens[2], c)){
+					case WRONG_ARG_NUM:
+						c.err_type = ERRO_SINTATICO;
+						c.err_subtype = WRONG_ARG_NUM;
+						log_error(c);
+						break;
+					case 0:
+						c.err_type = ERRO_SEMANTICO;
+						c.err_subtype = MISSING_SIMBOL;
+						log_error(c);
+						break;
+				}
+			}
+			else if(instr = STOP){
+				return 1;
+			}
+			else {
+				Operand arg_1;
+				get_operando(tokens[2], arg_1);
+				if(!existe_label(c.simbol_table, arg_1.label)){
+					c.err_type = ERRO_SEMANTICO;
+					c.err_subtype = MISSING_SIMBOL;
+					log_error(c);
+				}
+			}
 		}
-		else if(eh_diretiva(str)) {
+		else if(str == PUBLIC) {
+			Operand arg_1;
+			get_operando(tokens[2], arg_1);
+			if(!existe_label(c.simbol_table, arg_1.label)){
+				c.err_type = ERRO_SEMANTICO;
+				c.err_subtype = MISSING_SIMBOL;
+				log_error(c);
+			}
 			return 1;
 		}
 	}
@@ -412,13 +520,19 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 }
 
 
+/*
+ * ===  FUNCTION  ======================================================================
+ *         Name:  validate_copy
+ *  Description:  verifica se o comando copy eh valido
+ * =====================================================================================
+ */
 int validate_copy(string str, Config &c){
 	vector<string> v;
 	const char *del = ",";
 
 	Operand arg_1, arg_2;
 	split(str, del, v);
-	if(v.size() != 2) return 0;
+	if(v.size() != 2) return WRONG_ARG_NUM;
 
 	get_operando(v[0], arg_1);
 	get_operando(v[1], arg_2);
@@ -459,7 +573,8 @@ int set_definitions(Config &c){
  * verifca se linha a é o comeco da sessao de texto
  * ******************************************************************************/
 int check_section_text(string &s, int &counter){
-	if(s.find(SECTION_TEXT)!= string::npos){
+	int size = SECTION_TEXT.length();
+	if(s.find(SECTION_TEXT)!= string::npos && s.length() == size){
 		counter++;
 		return 1;
 	}
@@ -470,7 +585,9 @@ int check_section_text(string &s, int &counter){
  * verifica se a linha eh o comeco da sesao de dados
  * ******************************************************************************/
 int check_section_data(string &s, int &counter){
-	if(s.find(SECTION_DATA)!= string::npos){
+	int size = SECTION_DATA.length();
+
+	if(s.find(SECTION_DATA)!= string::npos && s.length() == size){
 		counter++;
 		return 1;
 	}
@@ -603,13 +720,19 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 	}
 	else if(diretiva == BEGIN){
 		if(arg_size !=2){
-
+			c.err_type = ERRO_SINTATICO;
+			c.err_subtype = WRONG_ARG_NUM;
+			log_error(c);
+			return WRONG_ARG_NUM;
 		}
 		c.eh_modulo++;
 		return 0;
 	}
 	else if(diretiva == EXTERN){
 		if(arg_size != 2){
+			c.err_type = ERRO_SINTATICO;
+			c.err_subtype = WRONG_ARG_NUM;
+			log_error(c);
 			return WRONG_ARG_NUM; // EXTERN POSSUI UM LABEL E A DIRTETIVA
 		}
 		set_extern(argumentos[0], c.simbol_table);
@@ -617,6 +740,9 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 	}
 	else if(diretiva == PUBLIC) {
 		if(arg_size != 2){
+			c.err_type = ERRO_SINTATICO;
+			c.err_subtype = WRONG_ARG_NUM;
+			log_error(c);
 			return WRONG_ARG_NUM; // PUBLIC POSSUI 1 ARGUMENTO
 		}
 		set_public(argumentos[1], c);
@@ -686,6 +812,25 @@ void log_error(Config &c){
 					break;
 				case SECTIONS_IN_WRONG_ORDER:
 					cout << "SECTION TEXT e SECTION DATA estao na ordem incorreta, linha: " << c.count_line << RESET <<endl;
+					break;
+				case EXCEEDED_BEGIN_NUM:
+					cout << "Modulo somente pode conter uma diretiva BEGIN " << RESET <<endl;
+					break;
+				case EXCEEDED_END_NUM:
+					cout << "Modulo somente pode conter uma diretiva END " << RESET <<endl;
+					break;
+				case MISSING_SECTION_TEXT:
+					cout << "Arquivo nao possui SECTION TEXT " << RESET <<endl;
+					break;
+				case EXCEEDED_SECTION_TEXT:
+					cout << "Arquivo possui mais de uma SECTION TEXT " << RESET <<endl;
+					break;
+				case EXCEEDED_SECTION_DATA:
+					cout << "Arquivo possui mais de uma SECTION DATA " << RESET <<endl;
+					break;
+				case MISSING_SIMBOL:
+					cout << "Simbolo indefinido, linha: " << c.count_line << RESET <<endl;
+					break;
 			}
 			break;
 		case ERRO_LEXICO:
@@ -693,6 +838,7 @@ void log_error(Config &c){
 			switch(c.err_subtype){
 				case WRONG_TOKEN_FORMAT:
 					cout << "Token invalida, linha: " << c.count_line << RESET <<endl;
+					break;
 			}
 			break;
 		default:
