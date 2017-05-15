@@ -4,7 +4,7 @@
 #include "helper.cpp"
 #include "preprocessador.cpp"
 #include "montador.cpp"
-#include "ligador.cpp"
+//#include "ligador.cpp"
 
 using namespace std;
 
