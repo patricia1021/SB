@@ -32,7 +32,7 @@ class Config {
 		map<int, int> memory;
 		map<string, int> instruction_table;
 		map<string, int> definition_table;
-		map<string, int> use_table;
+		map<string, vector<int>> use_table;
 		map<int, int> inst_size_table;
 
 		// flags
@@ -118,7 +118,7 @@ int monta_arquivo(fstream &fonte, string filename){
 		cout << RED << "Arquivo nao montado por contem erros, favor corrigir os erros e tentar novamente!!" RESET<<endl;
 		return 0;
 	}
-	/* segunda_passagem(fonte, c); */
+	segunda_passagem(fonte, c);
 }
 /**************************************************************************
  * funcao principal da primeira passagem do algoritmo de montagem
@@ -148,8 +148,8 @@ int primeira_passagem(fstream &fonte, Config &c){
 			}
 
 			//DEBUGG
-			cout << "line cout: " << c.count_line << " - pos_count: "<<c.count_pos << endl;
-			cout << YEL << line << endl << RESET;
+			/* cout << "line cout: " << c.count_line << " - pos_count: "<<c.count_pos << endl; */
+			/* cout << YEL << line << endl << RESET; */
 
 			split(line, delimiter, tokens); // separa os elementos da linha em tokens
 			token = tokens[0].substr(0, tokens[0].length() -1); // primeiro token da linha
@@ -257,7 +257,7 @@ int segunda_passagem(fstream &fonte, Config &c){
 		getline(fonte, line);
 		to_uppercase(line); // passa para maiusculo
 
-		if(!line.empty() || line == SECTION_DATA){
+		if(line.empty() || line == SECTION_DATA){
 			c.count_line++;
 			continue;
 		}
@@ -271,7 +271,14 @@ int segunda_passagem(fstream &fonte, Config &c){
 			line_has_label = 1;
 			operacao = tokens[1];
 		}
-		check_operandos(c, tokens, line_has_label);
+		if(check_operandos(c, tokens, line_has_label)){
+			cout << GRN << "OK" <<endl << RESET;
+			cout << line << endl;
+		}else{
+			cout << RED << "NAO" <<endl <<RESET;
+			cout << line << endl;
+		}
+		c.count_line++;
 
 	}
 	return 1;
@@ -442,11 +449,16 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 						c.err_type = ERRO_SINTATICO;
 						c.err_subtype = WRONG_ARG_NUM;
 						log_error(c);
+						return 0;
 						break;
 					case 0:
 						c.err_type = ERRO_SEMANTICO;
 						c.err_subtype = MISSING_SIMBOL;
 						log_error(c);
+						return 0;
+						break;
+					default:
+						return 1;
 						break;
 				}
 			}
@@ -460,8 +472,10 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 					c.err_type = ERRO_SEMANTICO;
 					c.err_subtype = MISSING_SIMBOL;
 					log_error(c);
+					return 0;
 				}
 			}
+			return 1;
 		}
 		else if(str == PUBLIC) {
 			Operand arg_1;
@@ -470,27 +484,32 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 				c.err_type = ERRO_SEMANTICO;
 				c.err_subtype = MISSING_SIMBOL;
 				log_error(c);
+				return 0;
 			}
 			return 1;
 		}
+		return 1;
 	}
 	else{
 		str = tokens[0];
 		instr = get_instruction(c.instruction_table, str);
 		if(instr != 0){
 			if(instr == COPY){
-				switch(validate_copy(tokens[2], c)){
+				switch(validate_copy(tokens[1], c)){
 					case WRONG_ARG_NUM:
 						c.err_type = ERRO_SINTATICO;
 						c.err_subtype = WRONG_ARG_NUM;
 						log_error(c);
+						return 0;
 						break;
 					case 0:
 						c.err_type = ERRO_SEMANTICO;
 						c.err_subtype = MISSING_SIMBOL;
 						log_error(c);
+						return 0;
 						break;
 				}
+				return 1;
 			}
 			else if(instr = STOP){
 				return 1;
@@ -502,6 +521,7 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 					c.err_type = ERRO_SEMANTICO;
 					c.err_subtype = MISSING_SIMBOL;
 					log_error(c);
+					return 0;
 				}
 			}
 		}
@@ -512,9 +532,11 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 				c.err_type = ERRO_SEMANTICO;
 				c.err_subtype = MISSING_SIMBOL;
 				log_error(c);
+				return 0;
 			}
 			return 1;
 		}
+		return 1;
 	}
 	return 0;
 }
@@ -532,7 +554,11 @@ int validate_copy(string str, Config &c){
 
 	Operand arg_1, arg_2;
 	split(str, del, v);
-	if(v.size() != 2) return WRONG_ARG_NUM;
+	if(v.size() != 2){
+		cout << "NAO VALIDEI COPY: "<<str << endl;
+		return WRONG_ARG_NUM;
+	}
+
 
 	get_operando(v[0], arg_1);
 	get_operando(v[1], arg_2);
@@ -599,7 +625,7 @@ int check_section_data(string &s, int &counter){
 void inicializa_tabela_instrucao(map<string, int> &t){
 	t["ADD"] = ADD;
 	t["SUB"] = SUB;
-	t["MUL"] = MUL;
+	t["MULT"] = MULT;
 	t["DIV"] = DIV;
 	t["JMP"] = JMP;
 	t["JMPN"] = JMPN;
@@ -619,7 +645,7 @@ void inicializa_tabela_instrucao(map<string, int> &t){
 void inicializa_tabela_tamanhos_instrucao(map<int,int> &t){
 	t[ADD] = 2;
 	t[SUB] = 2;
-	t[MUL] = 2;
+	t[MULT] = 2;
 	t[DIV] = 2;
 	t[JMP] = 2;
 	t[JMPN] = 2;
@@ -749,6 +775,12 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 		return 0;
 	}
 	else if(diretiva == END) {
+		if(arg_size != 1){
+			c.err_type = ERRO_SINTATICO;
+			c.err_subtype = WRONG_ARG_NUM;
+			log_error(c);
+			return WRONG_ARG_NUM; // PUBLIC POSSUI 1 ARGUMENTO
+		}
 		c.num_ends++;
 		return 0;
 	}
