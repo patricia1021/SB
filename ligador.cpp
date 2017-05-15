@@ -18,12 +18,48 @@ void ligador (int argc, char*argv[])
   FILE *open, *write;
   int i;
   char c;
-  
-  if (argc > 4)
-  {
-    printf ("Quantidade de arquivos maior que o necessário."\n);
-    exit(1);
-  }
+
+	
+/*********************************************************************************
+ * Funcao que verifica a quantidade e a validade dos arguetos passados ao programa
+ ********************************************************************************/
+int verifica_argumentos_ligador (int argc, char *argv[]){
+	vector<string> valid_args {"-o"}
+	if(argc < 2 || argc > 4)
+	{
+		cout << RED << "Quantidade de arquivos maior que o necessário.\n\n Execute o programa novamente com o numero correto de argumentos\n" << RESET;
+		return 0;
+	}
+	// checar se os primeiros arquivos são .o e o último é .e para todos os casos
+	if (argc == 2)
+	{
+		(in_array(argv[0]))
+		{
+		cout << "opcoes de compilacao invalidas" << endl;
+		return 0;
+		}
+	}
+	
+	else if (argc == 3)
+	{
+		(in_array(argv[0]))
+		{
+		cout << "opcoes de compilacao invalidas" << endl;
+		return 0;
+		}
+	}
+	
+	else if (argc == 4)
+	{
+		(in_array(argv[0]))
+		{
+		cout << "opcoes de compilacao invalidas" << endl;
+		return 0;
+		}
+	}
+	return 1;
+}	
+	
   /*if (argv[3]...)
   printf ("A extensão do último arquivo deve ser \.e"\n);
   //para saber se a extenso do último arquivo é .e
