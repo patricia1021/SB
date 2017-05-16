@@ -11,24 +11,26 @@ B	arquivos_teste_moodle/triangulo.asm	/^B:		SPACE$/;"	l
 B	testes/teste1.asm	/^B: Space$/;"	l
 BAD	arquivos_teste_moodle/fat_mod_A.asm	/^	BAD: SPACE 4$/;"	l
 BEGIN	constantes.hpp	/^const string BEGIN = "BEGIN";$/;"	v
-BLU	constantes.hpp	54;"	d
+BLU	constantes.hpp	57;"	d
 COISA	arquivos_teste_moodle/fat_mod_B.asm	/^	COISA: CONST 2$/;"	l
+COMAND_ON_WRONG_SECTION	constantes.hpp	41;"	d
 CONST	constantes.hpp	/^const string CONST = "CONST";$/;"	v
 CONSTANTES_HPP	constantes.hpp	4;"	d
 COPY	arquivos_teste_moodle/bin.asm	/^COPY NEW_DATA, OLD_DATA$/;"	l
 COPY	arquivos_teste_moodle/triangulo.asm	/^COPY 	B,DOIS+1$/;"	l
 COPY	constantes.hpp	14;"	d
-CYN	constantes.hpp	56;"	d
+CYN	constantes.hpp	59;"	d
+CellMem	montador.cpp	/^typedef shared_ptr<MemCell> CellMem;$/;"	t	file:
 Config	montador.cpp	/^class Config {$/;"	c	file:
+DATA_ON_WRONG_SECTION	constantes.hpp	40;"	d
 DIV	arquivos_teste_moodle/triangulo.asm	/^DIV		DOIS$/;"	l
-DIV	arquivos_teste_moodle/triangulo.asm	/^DIV 	K$/;"	l
 DIV	constantes.hpp	9;"	d
 DOIS	arquivos_teste_moodle/bin.asm	/^DOIS: CONST 2$/;"	l
 DOIS	arquivos_teste_moodle/triangulo.asm	/^DOIS:	CONST		2$/;"	l
 Div	testes/teste1.asm	/^Div 2ois$/;"	l
 END	constantes.hpp	/^const string END = "END";$/;"	v
 EQU	constantes.hpp	/^const string EQU = "EQU";$/;"	v
-ERRO_LEXICO	constantes.hpp	41;"	d
+ERRO_LEXICO	constantes.hpp	44;"	d
 ERRO_SEMANTICO	constantes.hpp	30;"	d
 ERRO_SINTATICO	constantes.hpp	24;"	d
 EXCEEDED_BEGIN_NUM	constantes.hpp	33;"	d
@@ -41,7 +43,7 @@ FAT	arquivos_teste_moodle/fat_mod_B.asm	/^	FAT: EXTERN$/;"	l
 FIM	arquivos_teste_moodle/fat_mod_A.asm	/^	FIM: OUTPUT N$/;"	l
 FLAG_O	constantes.hpp	/^const string FLAG_O = "-o";$/;"	v
 FLAG_P	constantes.hpp	/^const string FLAG_P = "-p";$/;"	v
-GRN	constantes.hpp	52;"	d
+GRN	constantes.hpp	55;"	d
 H	arquivos_teste_moodle/triangulo.asm	/^H:		SPACE$/;"	l
 H	testes/teste1.asm	/^H: Space$/;"	l
 HELPER_CPP	helper.cpp	12;"	d	file:
@@ -70,18 +72,20 @@ LOAD	constantes.hpp	15;"	d
 LOAD	testes/teste2.asm	/^LOAD         N$/;"	l
 LoaD	testes/teste3.asm	/^LoaD #$/;"	l
 Load	testes/teste1.asm	/^Load B$/;"	l
-MAG	constantes.hpp	55;"	d
+MAG	constantes.hpp	58;"	d
 MISSING_END	constantes.hpp	35;"	d
 MISSING_SECTION_TEXT	constantes.hpp	36;"	d
 MISSING_SIMBOL	constantes.hpp	39;"	d
 MOD_A	arquivos_teste_moodle/fat_mod_A.asm	/^MOD_A: BEGIN$/;"	l
 MOD_B	arquivos_teste_moodle/fat_mod_A.asm	/^	MOD_B: EXTERN$/;"	l
 MOD_B	arquivos_teste_moodle/fat_mod_B.asm	/^MOD_B: BEGIN$/;"	l
-MONTA	constantes.hpp	61;"	d
+MONTA	constantes.hpp	64;"	d
 MONTADOR_CPP	montador.cpp	12;"	d	file:
 MULT	arquivos_teste_moodle/bin.asm	/^MULT DOIS$/;"	l
 MULT	arquivos_teste_moodle/triangulo.asm	/^MULT		H$/;"	l
 MULT	constantes.hpp	8;"	d
+MemCell	montador.cpp	/^		MemCell(int val, int relativo = 0){$/;"	f	class:MemCell
+MemCell	montador.cpp	/^class MemCell {$/;"	c	file:
 Mul	testes/teste1.asm	/^Mul K$/;"	l
 N	arquivos_teste_moodle/fat_mod_A.asm	/^	N: SPACE$/;"	l
 N	arquivos_teste_moodle/fat_mod_B.asm	/^	N: EXTERN$/;"	l
@@ -94,13 +98,13 @@ OUTPUT	arquivos_teste_moodle/triangulo.asm	/^OUTPUT	R$/;"	l
 OUTPUT	constantes.hpp	18;"	d
 Operand	montador.cpp	/^class Operand {$/;"	c	file:
 Output	testes/teste1.asm	/^Output R$/;"	l
-PREPROCESSA	constantes.hpp	60;"	d
+PREPROCESSA	constantes.hpp	63;"	d
 PREPROCESSA_CPP	preprocessador.cpp	10;"	d	file:
 PUBLIC	constantes.hpp	/^const string PUBLIC = "PUBLIC";$/;"	v
 R	arquivos_teste_moodle/triangulo.asm	/^R:		SPACE$/;"	l
 R	testes/teste1.asm	/^R: Space$/;"	l
-RED	constantes.hpp	51;"	d
-RESET	constantes.hpp	58;"	d
+RED	constantes.hpp	54;"	d
+RESET	constantes.hpp	61;"	d
 SECTION	arquivos_teste_moodle/bin.asm	/^SECTION DATA$/;"	l
 SECTION	arquivos_teste_moodle/bin.asm	/^SECTION TEXT$/;"	l
 SECTION	arquivos_teste_moodle/fat_mod_A.asm	/^SECTION DATA$/;"	l
@@ -135,18 +139,18 @@ SimbolTable	montador.cpp	/^typedef map<string, shared_ptr<Ts>> SimbolTable;$/;"	
 Store	testes/teste1.asm	/^Store R$/;"	l
 TMP_DATA	arquivos_teste_moodle/bin.asm	/^TMP_DATA: SPACE$/;"	l
 TOKEN_ALREADY_EXISTS	constantes.hpp	31;"	d
-TOKEN_TYPE_1	constantes.hpp	46;"	d
-TOKEN_TYPE_2	constantes.hpp	47;"	d
-TOKEN_TYPE_3	constantes.hpp	48;"	d
-TOKEN_TYPE_4	constantes.hpp	49;"	d
+TOKEN_TYPE_1	constantes.hpp	49;"	d
+TOKEN_TYPE_2	constantes.hpp	50;"	d
+TOKEN_TYPE_3	constantes.hpp	51;"	d
+TOKEN_TYPE_4	constantes.hpp	52;"	d
 TRIANGULO	arquivos_teste_moodle/triangulo.asm	/^TRIANGULO: EQU 1 ;isto � uma constante$/;"	d
 Ts	montador.cpp	/^		Ts(int val, int outside = 0){$/;"	f	class:Ts
 Ts	montador.cpp	/^class Ts{$/;"	c	file:
-WHT	constantes.hpp	57;"	d
+WHT	constantes.hpp	60;"	d
 WRONG_ARG_NUM	constantes.hpp	25;"	d
 WRONG_ARG_TYPE	constantes.hpp	27;"	d
-WRONG_TOKEN_FORMAT	constantes.hpp	42;"	d
-YEL	constantes.hpp	53;"	d
+WRONG_TOKEN_FORMAT	constantes.hpp	45;"	d
+YEL	constantes.hpp	56;"	d
 adiciona_label	montador.cpp	/^void adiciona_label(SimbolTable &simbol_table, string simbol, int posicao){$/;"	f
 area	testes/teste4.asm	/^area: extern$/;"	l
 area	testes/teste4.asm	/^area: space$/;"	l
@@ -154,7 +158,8 @@ b	testes/teste4.asm	/^b: extern$/;"	l
 b	testes/teste4.asm	/^b: space$/;"	l
 check_EQU	preprocessador.cpp	/^int check_EQU(string line, map<string, int> &equ_map){$/;"	f
 check_IF	preprocessador.cpp	/^int check_IF(string line, fstream &fonte, fstream &saida, map<string, int> &equ_map){$/;"	f
-check_error	montador.cpp	/^int check_error(Config &c){$/;"	f
+check_error_primeira_passagem	montador.cpp	/^int check_error_primeira_passagem(Config &c){$/;"	f
+check_error_segunda_passagem	montador.cpp	/^int check_error_segunda_passagem(Config &c){$/;"	f
 check_operandos	montador.cpp	/^int check_operandos(Config &c, vector<string> &tokens, int line_has_label){$/;"	f
 check_section_data	montador.cpp	/^int check_section_data(string &s, int &counter){$/;"	f
 check_section_text	montador.cpp	/^int check_section_text(string &s, int &counter){$/;"	f
@@ -173,8 +178,11 @@ err_subtype	montador.cpp	/^		int err_subtype;$/;"	m	class:Config	file:
 err_type	montador.cpp	/^		int err_type;$/;"	m	class:Config	file:
 exec	main.cpp	/^void exec(int argc, char *argv[]){$/;"	f
 exec_diretiva	montador.cpp	/^int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int count_pos, int count_line){$/;"	f
+executa_instrucao	montador.cpp	/^int executa_instrucao(Config &c){$/;"	f
 existe_label	montador.cpp	/^int existe_label(SimbolTable &simbol_table, string token){$/;"	f
 filtra_comentario	preprocessador.cpp	/^string filtra_comentario(string line){$/;"	f
+gera_arquivo_executavel	montador.cpp	/^int gera_arquivo_executavel(Config &c, string filename){$/;"	f
+get_address	montador.cpp	/^int get_address(Config &c, Operand &op){$/;"	f
 get_estencao	main.cpp	/^string get_estencao(string s){$/;"	f
 get_flag	main.cpp	/^int get_flag(char *flag){$/;"	f
 get_instruction	montador.cpp	/^int get_instruction(map<string, int> &t, string s){$/;"	f
@@ -191,7 +199,7 @@ input	testes/teste4.asm	/^input b$/;"	l
 input	testes/teste4.asm	/^input h$/;"	l
 inst_size_table	montador.cpp	/^		map<int, int> inst_size_table;$/;"	m	class:Config	file:
 instruction_table	montador.cpp	/^		map<string, int> instruction_table;$/;"	m	class:Config	file:
-is_hex_string	helper.cpp	/^bool is_hex_string(std::string& str) {$/;"	f
+is_hex_string	helper.cpp	/^bool is_hex_string(std::string& s) {$/;"	f
 is_number	helper.cpp	/^bool is_number(const std::string& s)$/;"	f
 jmp	testes/teste4.asm	/^jmp modulo_b ;pulo para rótulo inválido$/;"	l
 jmpz	testes/teste3.asm	/^jmpz som ; pulo para rótulo inválido, deveria ser soma$/;"	l
@@ -202,7 +210,7 @@ load	testes/teste3.asm	/^load var$/;"	l
 load	testes/teste4.asm	/^load b$/;"	l
 log_error	montador.cpp	/^void log_error(Config &c){$/;"	f
 main	main.cpp	/^int main(int argc, char *argv[])$/;"	f
-memory	montador.cpp	/^		map<int, int> memory;$/;"	m	class:Config	file:
+memory	montador.cpp	/^		map<int, CellMem> memory;$/;"	m	class:Config	file:
 mod_a	testes/teste4.asm	/^mod_a: ; sem begin$/;"	l
 mod_b	testes/teste4.asm	/^mod_b: begin$/;"	l
 mod_b	testes/teste4.asm	/^mod_b: extern$/;"	l
@@ -224,7 +232,10 @@ public	testes/teste4.asm	/^public mod_b$/;"	l
 public	testes/teste4.asm	/^public soma$/;"	l
 r	testes/teste3.asm	/^r: space$/;"	l
 reduce	helper.cpp	/^std::string reduce(const std::string& str,$/;"	f
+relativo	montador.cpp	/^		int relativo = 0;$/;"	m	class:MemCell	file:
+run_diretiva	montador.cpp	/^int run_diretiva(Config &c){$/;"	f
 sTOP	testes/teste1.asm	/^sTOP$/;"	l
+se_tem_label	montador.cpp	/^		int se_tem_label = 0;$/;"	m	class:Config	file:
 section_data_count	montador.cpp	/^		int section_data_count = 0;$/;"	m	class:Config	file:
 section_text_count	montador.cpp	/^		int section_text_count = 0;$/;"	m	class:Config	file:
 segunda_passagem	montador.cpp	/^int segunda_passagem(fstream &fonte, Config &c){$/;"	f
@@ -242,6 +253,7 @@ store	testes/teste4.asm	/^store area$/;"	l
 to_uppercase	helper.cpp	/^void to_uppercase(string &str){$/;"	f
 trim	helper.cpp	/^std::string trim(const std::string& str,$/;"	f
 use_table	montador.cpp	/^		map<string, vector<int>> use_table;$/;"	m	class:Config	file:
+val	montador.cpp	/^		int val;$/;"	m	class:MemCell	file:
 val	montador.cpp	/^		int val;$/;"	m	class:Ts	file:
 validate_copy	montador.cpp	/^int validate_copy(string str, Config &c){$/;"	f
 validate_token	montador.cpp	/^int validate_token(string s, int option){$/;"	f

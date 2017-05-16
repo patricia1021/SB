@@ -25,12 +25,31 @@ class Ts{
 
 typedef map<string, shared_ptr<Ts>> SimbolTable;
 
+// represatacao do eperando junto com o offset
+class Operand {
+	public:
+		string label;
+		int offset = 0;
+};
+
+// celula de memoria, que armazena se e absoluto ou relativo
+class MemCell {
+	public:
+		MemCell(int val, int relativo = 0){
+			this->val = val;
+			this->relativo = relativo;
+		}
+		int val;
+		int relativo = 0;
+};
+typedef shared_ptr<MemCell> CellMem;
+
 // class com variaveis de configuracao da montagem (evita de passar mil argumentos a toda chamada de funcao)
 class Config {
 	public:
 		// estruturas de dados
 		SimbolTable simbol_table;
-		map<int, int> memory;
+		map<int, CellMem> memory;
 		map<string, int> instruction_table;
 		map<string, int> definition_table;
 		map<string, vector<int>> use_table;
@@ -56,18 +75,14 @@ class Config {
 		int err_subtype;
 };
 
-// represatacao do eperando junto com o offset
-class Operand {
-	public:
-		string label;
-		int offset = 0;
-};
 
 int monta_arquivo(fstream &fonte, string filename);
 
 int primeira_passagem(fstream &fonte, Config &c);
 
 int segunda_passagem(fstream &fonte, Config &c);
+
+int gera_arquivo_executavel(Config &c, string filename);
 
 void inicializa_tabela_instrucao(map<string, int> &t);
 
@@ -83,7 +98,9 @@ int check_sections_order(Config &c);
 
 void log_error(Config &c);
 
-int check_error(Config &c);
+int check_error_primeira_passagem(Config &c);
+
+int check_error_segunda_passagem(Config &c);
 
 int get_instruction(map<string, int> &t, string s);
 
@@ -118,19 +135,26 @@ int get_operando(string str, Operand &op);
 int validate_token(string s, int option);
 
 int monta_arquivo(fstream &fonte, string filename){
+	cout << filename << endl;
 	Config c;
-	string b = "COISA";
 	inicializa_tabela_instrucao(c.instruction_table);
 	inicializa_tabela_tamanhos_instrucao(c.inst_size_table);
 
 	cout << BLU <<"==================================     MONTAGEM INICIADA    ===========================================" << endl << RESET;
 	primeira_passagem(fonte, c);
 	// so continua caso a primeira passagem esta livre de errors
-	if(!check_error(c)) {
+	if(!check_error_primeira_passagem(c)) {
 		cout << RED << "Arquivo nao montado por contem erros, favor corrigir os erros e tentar novamente!!" RESET<<endl;
 		return 0;
 	}
 	segunda_passagem(fonte, c);
+	// so cintunua caso segunda passagem nao tenha erros
+	if(!check_error_segunda_passagem(c)){
+		cout << RED << "Arquivo nao montado por contem erros, favor corrigir os erros e tentar novamente!!" RESET<<endl;
+		return 0;
+	}
+	gera_arquivo_executavel(c, filename);
+	return 1;
 }
 /**************************************************************************
  * funcao principal da primeira passagem do algoritmo de montagem
@@ -192,7 +216,7 @@ int primeira_passagem(fstream &fonte, Config &c){
 			if((i = get_instruction(c.instruction_table, operacao)) != 0){
 				//////////////////////////////      DEBUG            //////////////////////////////////////
 				/* cout << "linha " << c.count_line 1<<" instrucao encontrada: " << c.instruction_table[operacao] << endl; */
-				c.memory[c.count_pos] = 0;
+				/* c.memory[c.count_pos] = 0; */
 				c.count_pos += c.inst_size_table[i];
 			}
 			else if(eh_diretiva(operacao)) {
@@ -232,6 +256,7 @@ int primeira_passagem(fstream &fonte, Config &c){
 int segunda_passagem(fstream &fonte, Config &c){
 	fonte.clear();
 	fonte.seekg(0, ios::beg);
+	c.section_data_count = 0;
 
 	vector<string> tokens; // armazena os elementos separados da linha
 	string operacao;
@@ -262,7 +287,7 @@ int segunda_passagem(fstream &fonte, Config &c){
 		getline(fonte, line);
 		to_uppercase(line); // passa para maiusculo
 
-		if(line.empty() || line == SECTION_DATA){
+		if(line.empty() || check_section_data(line, c.section_data_count)){
 			c.count_line++;
 			continue;
 		}
@@ -299,30 +324,67 @@ int segunda_passagem(fstream &fonte, Config &c){
 		if(operacao == END) break;
 		c.count_line++;
 	}
+
 	cout <<MAG<< "MEMORIA" << RESET << endl;
 	for(auto &it:c.memory){
-		cout << it.first << " - " << it.second << endl;
+		cout << it.first << " - " << it.second->val << ", relativo? "<< it.second->relativo <<endl;
 	}
-	cout << MAG << "TABELA DEFINICOES" <<RESET <<endl;
-	for(auto &it:c.definition_table){
-		cout << it.first << " - " << it.second << endl;
-	}
-	cout << MAG << "TABELA DE USO" <<RESET <<endl;
+	if(c.eh_modulo){
+		cout << MAG << "TABELA DEFINICOES" <<RESET <<endl;
+		for(auto &it:c.definition_table){
+			cout << it.first << " - " << it.second << endl;
+		}
+		cout << MAG << "TABELA DE USO" <<RESET <<endl;
 
-	for(auto &it:c.use_table){
-		cout << "Simbolo: "<< it.first << endl << "\t{ ";
+		for(auto &it:c.use_table){
+			cout << "Simbolo: "<< it.first << endl << "\t{ ";
 			for(auto &num:it.second){
 				cout << num << " ";
 			}
 			cout <<"}"<<endl;
+		}
 	}
 	return 1;
 }
 
 /**************************************************************************************
+ * nome da funcao eh intuitivo
+ * **********************************************************************************/
+int gera_arquivo_executavel(Config &c, string filename){
+	fstream saida;
+	saida.open(filename+".o", fstream::out | fstream::trunc);
+	if(!c.eh_modulo){
+		for(auto &cell:c.memory){
+			saida << cell.second->val << " ";
+		}
+	}else{
+		saida << "TABLE USE"<<endl;
+		for(auto &t:c.use_table){
+			for(auto p:t.second){
+				saida << t.first << " "<< p<<endl;
+			}
+		}
+		saida << "TABLE DEFINITION"<<endl;
+		for(auto &t: c.definition_table){
+			saida << t.first << " "<<t.second << endl;
+		}
+		saida << "TABLE REALOCATION"<<endl;
+		for(auto &m:c.memory){
+			saida << m.second->relativo;
+		}
+		saida << endl;
+		saida << "CODE"<<endl;
+		for(auto &cell:c.memory){
+			saida << cell.second->val << " ";
+		}
+	}
+	saida.close();
+	return 1;
+}
+/**************************************************************************************
  * verifica se a primeira passagem contem erros, permitindo fazer a segunda passagem
  * **********************************************************************************/
-int check_error(Config &c){
+int check_error_primeira_passagem(Config &c){
 	//
 	// falta verificar se todos os itens marcados como publicos existem
 	//
@@ -368,7 +430,24 @@ int check_error(Config &c){
 	if(c.num_errors>0){
 		result&=0;
 	}
+	for(auto &it:c.definition_table){
+		auto value = c.simbol_table.find(it.first);
+		if(value == c.simbol_table.end()){
+			cout << RED <<"<<Erro Semantico: >> Simbolo declarado como publico não existe [["<< it.first <<"]]" << RESET <<endl;
+			result&=0;
+		}else{
+			it.second = value->second->val;
+		}
+
+	}
 	return result;
+}
+/***************************************************************************
+ * checa se segunda passagem possui erros
+ * **************************************************************************/
+int check_error_segunda_passagem(Config &c){
+	if(c.num_errors) return 0;
+	return 1;
 }
 
 /**********************************************************************************
@@ -477,106 +556,58 @@ int validate_token(string s, int option){
 int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 	string str;
 	int instr = 0;
-	if(line_has_label){
-		str = tokens[1];
-		instr = get_instruction(c.instruction_table, str);
-		if(instr != 0){
-			if(instr == COPY){
-				switch(validate_copy(tokens[2], c)){
-					case WRONG_ARG_NUM:
-						c.err_type = ERRO_SINTATICO;
-						c.err_subtype = WRONG_ARG_NUM;
-						log_error(c);
-						return 0;
-						break;
-					case 0:
-						c.err_type = ERRO_SEMANTICO;
-						c.err_subtype = MISSING_SIMBOL;
-						log_error(c);
-						return 0;
-						break;
-					default:
-						return 1;
-						break;
-				}
-			}
-			else if(instr == STOP){
-				return 1;
-			}
-			else {
-				Operand arg_1;
-				get_operando(tokens[2], arg_1);
-				if(!existe_label(c.simbol_table, arg_1.label)){
+	int offset = 0;
+	if(line_has_label) offset = 1;
+
+	str = c.operacao;
+	instr = get_instruction(c.instruction_table, str);
+	if(instr != 0){
+		if(instr == COPY){
+			switch(validate_copy(tokens[1+offset], c)){ // valida a instrucao copy
+				case WRONG_ARG_NUM:
+					c.err_type = ERRO_SINTATICO;
+					c.err_subtype = WRONG_ARG_NUM;
+					log_error(c);
+					return 0;
+					break;
+				case 0:
 					c.err_type = ERRO_SEMANTICO;
 					c.err_subtype = MISSING_SIMBOL;
 					log_error(c);
 					return 0;
-				}
+					break;
+				default:
+					return 1;
+					break;
 			}
+		}
+		else if(instr == STOP){ // instrucao STOP nao precisa de validacao
 			return 1;
 		}
-		else if(str == PUBLIC) {
+		else { // se nao eh copy e nem STOP, a validacao eh a mesma para o restante das intrucoes
 			Operand arg_1;
-			get_operando(tokens[2], arg_1);
+			get_operando(tokens[1+offset], arg_1);
 			if(!existe_label(c.simbol_table, arg_1.label)){
 				c.err_type = ERRO_SEMANTICO;
 				c.err_subtype = MISSING_SIMBOL;
 				log_error(c);
 				return 0;
 			}
-			return 1;
 		}
 		return 1;
 	}
-	else{
-		str = tokens[0];
-		instr = get_instruction(c.instruction_table, str);
-		if(instr != 0){
-			if(instr == COPY){
-				switch(validate_copy(tokens[1], c)){
-					case WRONG_ARG_NUM:
-						c.err_type = ERRO_SINTATICO;
-						c.err_subtype = WRONG_ARG_NUM;
-						log_error(c);
-						return 0;
-						break;
-					case 0:
-						c.err_type = ERRO_SEMANTICO;
-						c.err_subtype = MISSING_SIMBOL;
-						log_error(c);
-						return 0;
-						break;
-				}
-				return 1;
-			}
-			else if(instr == STOP){
-				return 1;
-			}
-			else {
-				Operand arg_1;
-				get_operando(tokens[1], arg_1);
-				if(!existe_label(c.simbol_table, arg_1.label)){
-					c.err_type = ERRO_SEMANTICO;
-					c.err_subtype = MISSING_SIMBOL;
-					log_error(c);
-					return 0;
-				}
-			}
-		}
-		else if(str == PUBLIC) {
-			Operand arg_1;
-			get_operando(tokens[1], arg_1);
-			if(!existe_label(c.simbol_table, arg_1.label)){
-				c.err_type = ERRO_SEMANTICO;
-				c.err_subtype = MISSING_SIMBOL;
-				log_error(c);
-				return 0;
-			}
-			return 1;
+	else if(str == PUBLIC) { // para ser declarado como publico, o simbolo precisa existir na tabela de instrucoes
+		Operand arg_1;
+		get_operando(tokens[1+offset], arg_1);
+		if(!existe_label(c.simbol_table, arg_1.label)){
+			c.err_type = ERRO_SEMANTICO;
+			c.err_subtype = MISSING_SIMBOL;
+			log_error(c);
+			return 0;
 		}
 		return 1;
 	}
-	return 0;
+	return 1;
 }
 
 
@@ -603,6 +634,12 @@ int validate_copy(string str, Config &c){
 
 }
 
+/* 
+ * ===  FUNCTION  ======================================================================
+ *         Name:  get_operando
+ *  Description:  gera um operando com endereco mais um offset caso ele exista
+ * =====================================================================================
+ */
 int get_operando(string str, Operand &op){
 	vector<string> v;
 	const char *del = "+";
@@ -742,9 +779,9 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 			/* cout << CYN << "TRATANDO SPACE, argumento: " << argumentos[2] << RESET << endl; */
 			if(is_number(argumentos[2])){
 				aux = abs(stoi(argumentos[2]));
-				for(int j = 0; j < aux; j++){
-					c.memory[count_pos + j] = 0;
-				}
+				/* for(int j = 0; j < aux; j++){ */
+				/* 	c.memory[count_pos + j] = MemCell(0,1); */
+				/* } */
 				return aux;
 			}
 			else {
@@ -758,7 +795,7 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 		else{
 			// DEBUG
 			/* cout << CYN << "TRATANDO SPACE, sem argumentos." << RESET << endl; */
-			c.memory[count_pos] = 0;
+			/* c.memory[count_pos] = 0; */
 			return 1; // space sem argumentis ocupa 1 espaco em memoria
 		}
 	}
@@ -781,8 +818,8 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 			return WRONG_TOKEN_FORMAT;
 		}
 	}
-	else if(diretiva == BEGIN){
-		if(arg_size !=2){
+	else if(diretiva == BEGIN){ // diretiva begin nao gera codigo
+		if(arg_size !=2){ // nao possui argumentos
 			c.err_type = ERRO_SINTATICO;
 			c.err_subtype = WRONG_ARG_NUM;
 			log_error(c);
@@ -853,7 +890,11 @@ int executa_instrucao(Config &c){
 	vector<string> args;
 	const char *speice = " ";
 	split(c.line, speice, args);
-
+	if(c.section_data_count > 0){
+		c.err_type = ERRO_SEMANTICO;
+		c.err_subtype = COMAND_ON_WRONG_SECTION;
+		log_error(c);
+	}
 	Operand arg_1, arg_2;
 	vector<string> copy_args;
 	const char *del = ",";
@@ -866,19 +907,19 @@ int executa_instrucao(Config &c){
 		split(args[1+offset], del, copy_args);
 		get_operando(copy_args[0], arg_1);
 		get_operando(copy_args[1], arg_2);
-		c.memory[c.count_pos++] = COPY;
-		c.memory[c.count_pos++] = get_address(c, arg_1);
-		c.memory[c.count_pos++] = get_address(c, arg_2);
+		c.memory[c.count_pos++] = CellMem(new MemCell(COPY));
+		c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_1), 1));
+		c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_2), 1));
 		return 1;
 	}
 	else if(c.operacao == "STOP"){
-		c.memory[c.count_pos++] = STOP;
+		c.memory[c.count_pos++] = CellMem(new MemCell(STOP));
 		return 1;
 	}
 	else{
 		get_operando(args[1+offset], arg_1);
-		c.memory[c.count_pos++] = get_instruction(c.instruction_table, c.operacao);
-		c.memory[c.count_pos++] = get_address(c, arg_1);
+		c.memory[c.count_pos++] = CellMem(new MemCell(get_instruction(c.instruction_table, c.operacao)));
+		c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_1), 1));
 		return 1;
 	}
 	return 0;
@@ -898,13 +939,18 @@ int run_diretiva(Config &c){
 		return 1;
 	}
 	else if(c.operacao == SPACE){
+		if(c.section_data_count == 0){
+			c.err_type = ERRO_SEMANTICO;
+			c.err_subtype = DATA_ON_WRONG_SECTION;
+			log_error(c);
+		}
 		if(args.size() == 2){
-			c.memory[c.count_pos++] = 0;
+			c.memory[c.count_pos++] = CellMem(new MemCell(0));
 		}
 		else if(is_number(args[2])){
 			int aux = abs(stoi(args[2]));
 			for(int j = 0; j < aux; j++){
-				c.memory[c.count_pos + j] = 0;
+				c.memory[c.count_pos + j] = CellMem(new MemCell(0));
 			}
 			c.count_pos+=aux;
 		}
@@ -917,16 +963,21 @@ int run_diretiva(Config &c){
 
 	}
 	else if(c.operacao == CONST){
+		if(c.section_data_count == 0){
+			c.err_type = ERRO_SEMANTICO;
+			c.err_subtype = DATA_ON_WRONG_SECTION;
+			log_error(c);
+		}
 		if(args.size() != 3){
 			c.err_type = ERRO_SINTATICO;
 			c.err_subtype = WRONG_ARG_NUM;
 			log_error(c);
 			return WRONG_ARG_NUM; // CONST sempre possui 1 argumento
 		} else if(is_hex_string(args[2])){
-			c.memory[c.count_pos++] = strtol(args[2].c_str(), NULL, 16);
+			c.memory[c.count_pos++] = CellMem(new MemCell(strtol(args[2].c_str(), NULL, 16)));
 			return 1;
 		} else if(is_number(args[2])){
-			c.memory[c.count_pos++] = stoi(args[2]);
+			c.memory[c.count_pos++] = CellMem(new MemCell(stoi(args[2])));
 			return 1; // CONST SEMPRA OCUPA 1 espaco em memoria
 		} else {
 			c.err_type = ERRO_LEXICO;
@@ -1013,6 +1064,12 @@ void log_error(Config &c){
 					break;
 				case MISSING_SIMBOL:
 					cout << "Simbolo indefinido, linha: " << c.count_line << RESET <<endl;
+					break;
+				case DATA_ON_WRONG_SECTION:
+					cout << "Dado declarado na sessao errada, linha: " << c.count_line << RESET <<endl;
+					break;
+				case COMAND_ON_WRONG_SECTION:
+					cout << "Comando declarado na sessao errada, linha: " << c.count_line << RESET <<endl;
 					break;
 			}
 			break;

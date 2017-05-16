@@ -37,6 +37,9 @@ using namespace std;
 #define EXCEEDED_SECTION_TEXT -21
 #define EXCEEDED_SECTION_DATA -22
 #define MISSING_SIMBOL -23
+#define DATA_ON_WRONG_SECTION -24
+#define COMAND_ON_WRONG_SECTION -25
+
 // lexicos
 #define ERRO_LEXICO 3
 #define WRONG_TOKEN_FORMAT -30
