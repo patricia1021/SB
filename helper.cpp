@@ -74,10 +74,19 @@ void split(const string &s, const char* delim, vector<string> & v){
 	free(dup);
 }
 
+/**************************************************************************
+ * passa string para sua uppercase version
+ * *************************************************************************/
+void to_uppercase(string &str){
+	std::transform(str.begin(), str.end(),str.begin(), ::toupper);
+}
+
 /*******************************************************************************
  * verifica se string eh um numero exadecimal
  * *****************************************************************************/
-bool is_hex_string(std::string& str) {
+bool is_hex_string(std::string& s) {
+	string str = s;
+	to_uppercase(str);
 	vector<string> v;
 	const char *c = "X";
 	split(str, c, v);
@@ -100,12 +109,8 @@ bool is_number(const std::string& s)
 	str = s;
 	if(s[0] == '-')
 		str = s.substr(1, s.length()+1);
-    return !str.empty() && std::find_if(str.begin(),
-        str.end(), [](char c) { return !std::isdigit(c); }) == str.end();
-}
-
-void to_uppercase(string &str){
-	std::transform(str.begin(), str.end(),str.begin(), ::toupper);
+	return !str.empty() && std::find_if(str.begin(),
+			str.end(), [](char c) { return !std::isdigit(c); }) == str.end();
 }
 /*********************************************************************************
  *  verifica se uma string eh um label

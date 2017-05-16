@@ -16,10 +16,12 @@ COISA	arquivos_teste_moodle/fat_mod_B.asm	/^	COISA: CONST 2$/;"	l
 CONST	constantes.hpp	/^const string CONST = "CONST";$/;"	v
 CONSTANTES_HPP	constantes.hpp	4;"	d
 COPY	arquivos_teste_moodle/bin.asm	/^COPY NEW_DATA, OLD_DATA$/;"	l
+COPY	arquivos_teste_moodle/triangulo.asm	/^COPY 	B,DOIS+1$/;"	l
 COPY	constantes.hpp	14;"	d
 CYN	constantes.hpp	56;"	d
 Config	montador.cpp	/^class Config {$/;"	c	file:
 DIV	arquivos_teste_moodle/triangulo.asm	/^DIV		DOIS$/;"	l
+DIV	arquivos_teste_moodle/triangulo.asm	/^DIV 	K$/;"	l
 DIV	constantes.hpp	9;"	d
 DOIS	arquivos_teste_moodle/bin.asm	/^DOIS: CONST 2$/;"	l
 DOIS	arquivos_teste_moodle/triangulo.asm	/^DOIS:	CONST		2$/;"	l
@@ -77,9 +79,9 @@ MOD_B	arquivos_teste_moodle/fat_mod_A.asm	/^	MOD_B: EXTERN$/;"	l
 MOD_B	arquivos_teste_moodle/fat_mod_B.asm	/^MOD_B: BEGIN$/;"	l
 MONTA	constantes.hpp	61;"	d
 MONTADOR_CPP	montador.cpp	12;"	d	file:
-MUL	constantes.hpp	8;"	d
 MULT	arquivos_teste_moodle/bin.asm	/^MULT DOIS$/;"	l
 MULT	arquivos_teste_moodle/triangulo.asm	/^MULT		H$/;"	l
+MULT	constantes.hpp	8;"	d
 Mul	testes/teste1.asm	/^Mul K$/;"	l
 N	arquivos_teste_moodle/fat_mod_A.asm	/^	N: SPACE$/;"	l
 N	arquivos_teste_moodle/fat_mod_B.asm	/^	N: EXTERN$/;"	l
@@ -210,6 +212,7 @@ mult	testes/teste4.asm	/^mult h ;instrução errada$/;"	l
 num_ends	montador.cpp	/^		int num_ends = 0;$/;"	m	class:Config	file:
 num_errors	montador.cpp	/^		int num_errors = 0;$/;"	m	class:Config	file:
 offset	montador.cpp	/^		int offset = 0;$/;"	m	class:Operand	file:
+operacao	montador.cpp	/^		string operacao;$/;"	m	class:Config	file:
 output	testes/teste4.asm	/^output area$/;"	l
 outside	montador.cpp	/^		int outside;$/;"	m	class:Ts	file:
 preprocessa_arquivo	preprocessador.cpp	/^int preprocessa_arquivo(fstream &fonte, fstream &saida_pre, char *argv[]){$/;"	f
@@ -230,6 +233,7 @@ set_extern	montador.cpp	/^int set_extern(string label, SimbolTable &simbol_table
 set_public	montador.cpp	/^int set_public(string label, Config &c){$/;"	f
 simbol_table	montador.cpp	/^		SimbolTable simbol_table;$/;"	m	class:Config	file:
 soma	testes/teste3.asm	/^soma: add var$/;"	l
+space_size	montador.cpp	/^		int space_size = 0;$/;"	m	class:Ts	file:
 split	helper.cpp	/^void split(const string &s, const char* delim, vector<string> & v){$/;"	f
 stop	testes/teste3.asm	/^stop$/;"	l
 stop	testes/teste4.asm	/^stop ; instrução no local errado$/;"	l

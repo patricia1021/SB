@@ -20,11 +20,12 @@ class Ts{
 		}
 		int val;
 		int outside;
+		int space_size = 0;
 };
 
 typedef map<string, shared_ptr<Ts>> SimbolTable;
 
-// class com variaveis de configuracao da montagem
+// class com variaveis de configuracao da montagem (evita de passar mil argumentos a toda chamada de funcao)
 class Config {
 	public:
 		// estruturas de dados
@@ -44,6 +45,8 @@ class Config {
 
 		// curent line being read from the code
 		string line;
+		string operacao;
+		int se_tem_label = 0;
 
 		// contados de linha e de endereco
 		int count_pos = 0;
@@ -53,6 +56,7 @@ class Config {
 		int err_subtype;
 };
 
+// represatacao do eperando junto com o offset
 class Operand {
 	public:
 		string label;
@@ -91,6 +95,14 @@ int eh_diretiva(string &s);
 
 int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int count_pos, int count_line);
 
+int executa_instrucao(Config &c);
+
+int get_address(Config &c, Operand &op);
+
+int run_diretiva(Config &c);
+
+int run_diretiva(Config &c);
+
 int set_extern(string label, SimbolTable &simbol_table);
 
 int set_public(string label, Config &c);
@@ -107,7 +119,7 @@ int validate_token(string s, int option);
 
 int monta_arquivo(fstream &fonte, string filename){
 	Config c;
-
+	string b = "COISA";
 	inicializa_tabela_instrucao(c.instruction_table);
 	inicializa_tabela_tamanhos_instrucao(c.inst_size_table);
 
@@ -208,14 +220,6 @@ int primeira_passagem(fstream &fonte, Config &c){
 		for(auto &it:c.simbol_table){
 			cout << it.first << " - " << it.second->val << " - extern? " << it.second->outside << endl;
 		}
-		cout <<MAG<< "MEMORIA" << RESET << endl;
-		for(auto &it:c.memory){
-			cout << it.first << " - " << it.second << endl;
-		}
-		cout << MAG << "TABELA DEFINICOES" <<RESET <<endl;
-		for(auto &it:c.definition_table){
-			cout << it.first << " - " << it.second << endl;
-		}
 		cout << MAG << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << RESET << endl;
 	}
 	return 1;
@@ -254,6 +258,7 @@ int segunda_passagem(fstream &fonte, Config &c){
 
 	while(!fonte.eof()){
 		line_has_label = 0;
+		c.se_tem_label = 0;
 		getline(fonte, line);
 		to_uppercase(line); // passa para maiusculo
 
@@ -269,17 +274,47 @@ int segunda_passagem(fstream &fonte, Config &c){
 
 		if(eh_label(tokens[0])){
 			line_has_label = 1;
+			c.se_tem_label = 1;
 			operacao = tokens[1];
 		}
-		if(check_operandos(c, tokens, line_has_label)){
-			cout << GRN << "OK" <<endl << RESET;
-			cout << line << endl;
+		c.operacao = operacao;
+		if(!check_operandos(c, tokens, line_has_label)){
+			c.count_line++;
+			continue;
 		}else{
-			cout << RED << "NAO" <<endl <<RESET;
-			cout << line << endl;
-		}
-		c.count_line++;
+			if(get_instruction(c.instruction_table, operacao)){
+				// fazer o algoritmo dessa funcao
+				executa_instrucao(c);
+			}
 
+			else if(eh_diretiva(operacao)){
+				run_diretiva(c);
+			}
+			else {
+				c.err_type = ERRO_SEMANTICO;
+				c.err_subtype = INSTRUCTION_NOT_FOUND;
+				log_error(c);
+			}
+		}
+		if(operacao == END) break;
+		c.count_line++;
+	}
+	cout <<MAG<< "MEMORIA" << RESET << endl;
+	for(auto &it:c.memory){
+		cout << it.first << " - " << it.second << endl;
+	}
+	cout << MAG << "TABELA DEFINICOES" <<RESET <<endl;
+	for(auto &it:c.definition_table){
+		cout << it.first << " - " << it.second << endl;
+	}
+	cout << MAG << "TABELA DE USO" <<RESET <<endl;
+
+	for(auto &it:c.use_table){
+		cout << "Simbolo: "<< it.first << endl << "\t{ ";
+			for(auto &num:it.second){
+				cout << num << " ";
+			}
+			cout <<"}"<<endl;
 	}
 	return 1;
 }
@@ -288,6 +323,9 @@ int segunda_passagem(fstream &fonte, Config &c){
  * verifica se a primeira passagem contem erros, permitindo fazer a segunda passagem
  * **********************************************************************************/
 int check_error(Config &c){
+	//
+	// falta verificar se todos os itens marcados como publicos existem
+	//
 	int result = 1;
 	if(c.eh_modulo > 0){
 		if(c.eh_modulo > 1){
@@ -462,7 +500,7 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 						break;
 				}
 			}
-			else if(instr = STOP){
+			else if(instr == STOP){
 				return 1;
 			}
 			else {
@@ -511,12 +549,12 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 				}
 				return 1;
 			}
-			else if(instr = STOP){
+			else if(instr == STOP){
 				return 1;
 			}
 			else {
 				Operand arg_1;
-				get_operando(tokens[2], arg_1);
+				get_operando(tokens[1], arg_1);
 				if(!existe_label(c.simbol_table, arg_1.label)){
 					c.err_type = ERRO_SEMANTICO;
 					c.err_subtype = MISSING_SIMBOL;
@@ -527,7 +565,7 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 		}
 		else if(str == PUBLIC) {
 			Operand arg_1;
-			get_operando(tokens[2], arg_1);
+			get_operando(tokens[1], arg_1);
 			if(!existe_label(c.simbol_table, arg_1.label)){
 				c.err_type = ERRO_SEMANTICO;
 				c.err_subtype = MISSING_SIMBOL;
@@ -555,7 +593,6 @@ int validate_copy(string str, Config &c){
 	Operand arg_1, arg_2;
 	split(str, del, v);
 	if(v.size() != 2){
-		cout << "NAO VALIDEI COPY: "<<str << endl;
 		return WRONG_ARG_NUM;
 	}
 
@@ -732,10 +769,10 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 			log_error(c);
 			return WRONG_ARG_NUM; // CONST sempre possui 1 argumento
 		} else if(is_hex_string(argumentos[2])){
-			c.memory[count_pos] = strtol(argumentos[2].c_str(), NULL, 16);
+			/* c.memory[count_pos] = strtol(argumentos[2].c_str(), NULL, 16); */
 			return 1; // CONST SEMPRA OCUPA 1 espaco em memoria
 		} else if(is_number(argumentos[2])){
-			c.memory[count_pos] = stoi(argumentos[2]);
+			/* c.memory[count_pos] = stoi(argumentos[2]); */
 			return 1; // CONST SEMPRA OCUPA 1 espaco em memoria
 		} else {
 			c.err_type = ERRO_LEXICO;
@@ -783,6 +820,120 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 		}
 		c.num_ends++;
 		return 0;
+	}
+	return 0;
+}
+
+/************************************************************************
+ * Retorna o endereco do aperando
+ * *********************************************************************/
+int get_address(Config &c, Operand &op){
+	auto it = c.simbol_table.find(op.label);
+	if(it != c.simbol_table.end()){
+		if(it->second->outside){
+			if(c.use_table.find(op.label)!= c.use_table.end()){
+				c.use_table[op.label].push_back(c.count_pos);
+			}else{
+				c.use_table[op.label] = vector<int>{c.count_pos};
+			}
+			return op.offset;
+		}
+		return it->second->val + op.offset;
+	}
+	c.err_type = ERRO_SEMANTICO;
+	c.err_subtype = MISSING_SIMBOL;
+	log_error(c);
+	return 0;
+}
+
+/************************************************************************
+ * joga pra memoria o cadigo da instrucao
+ * *********************************************************************/
+int executa_instrucao(Config &c){
+	vector<string> args;
+	const char *speice = " ";
+	split(c.line, speice, args);
+
+	Operand arg_1, arg_2;
+	vector<string> copy_args;
+	const char *del = ",";
+	int offset = 0;
+	if(c.se_tem_label){
+		offset = 1;
+	}
+
+	if(c.operacao == "COPY"){
+		split(args[1+offset], del, copy_args);
+		get_operando(copy_args[0], arg_1);
+		get_operando(copy_args[1], arg_2);
+		c.memory[c.count_pos++] = COPY;
+		c.memory[c.count_pos++] = get_address(c, arg_1);
+		c.memory[c.count_pos++] = get_address(c, arg_2);
+		return 1;
+	}
+	else if(c.operacao == "STOP"){
+		c.memory[c.count_pos++] = STOP;
+		return 1;
+	}
+	else{
+		get_operando(args[1+offset], arg_1);
+		c.memory[c.count_pos++] = get_instruction(c.instruction_table, c.operacao);
+		c.memory[c.count_pos++] = get_address(c, arg_1);
+		return 1;
+	}
+	return 0;
+}
+
+int run_diretiva(Config &c){
+	vector<string> args;
+	const char *speice = " ";
+	split(c.line, speice, args);
+
+	int offset = 0;
+	if(c.se_tem_label){
+		offset = 1;
+	}
+
+	if(in_array(c.operacao, vector<string>{BEGIN, EXTERN, PUBLIC, END})){
+		return 1;
+	}
+	else if(c.operacao == SPACE){
+		if(args.size() == 2){
+			c.memory[c.count_pos++] = 0;
+		}
+		else if(is_number(args[2])){
+			int aux = abs(stoi(args[2]));
+			for(int j = 0; j < aux; j++){
+				c.memory[c.count_pos + j] = 0;
+			}
+			c.count_pos+=aux;
+		}
+		else {
+			c.err_type = ERRO_SINTATICO;
+			c.err_subtype = WRONG_ARG_TYPE;
+			log_error(c);
+			return 0; // SPACE ou possui 1 ou nenum argumentos
+		}
+
+	}
+	else if(c.operacao == CONST){
+		if(args.size() != 3){
+			c.err_type = ERRO_SINTATICO;
+			c.err_subtype = WRONG_ARG_NUM;
+			log_error(c);
+			return WRONG_ARG_NUM; // CONST sempre possui 1 argumento
+		} else if(is_hex_string(args[2])){
+			c.memory[c.count_pos++] = strtol(args[2].c_str(), NULL, 16);
+			return 1;
+		} else if(is_number(args[2])){
+			c.memory[c.count_pos++] = stoi(args[2]);
+			return 1; // CONST SEMPRA OCUPA 1 espaco em memoria
+		} else {
+			c.err_type = ERRO_LEXICO;
+			c.err_subtype = WRONG_TOKEN_FORMAT;
+			log_error(c);
+			return 0;
+		}
 	}
 	return 0;
 }
