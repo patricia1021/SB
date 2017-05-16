@@ -4,10 +4,14 @@
 #include "helper.cpp"
 #include "preprocessador.cpp"
 #include "montador.cpp"
+//#include "ligador.cpp"
 
 using namespace std;
 
 void exec(int argc, char *argv[]);
+
+//exec para ligador
+//void liga (int argc, char *argv[]);
 
 int verfica_argumentos(char *argv[]);
 
@@ -24,6 +28,9 @@ int montagem(fstream &fonte, fstream &saida_pre, char *argv[]);
 int main(int argc, char *argv[])
 {
 	exec(argc, argv);
+	//return 0;
+	
+	//liga (argc, argv);
 	return 0;
 }
 
