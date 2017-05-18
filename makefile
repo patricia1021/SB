@@ -1,8 +1,15 @@
-all: compile_montador run
+all: montador
+
+montador: compile_montador
+	./prog -o "arquivos_teste_moodle/bin.asm" bin
+
+ligador: compile_ligador
+	./ligador fat_mod_A.o fat_mod_B.o fat.e
 
 compile_montador:
 	g++ main.cpp -o prog -std=c++14
 
-run:
-	./prog -o "arquivos_teste_moodle/fat_mod_B.asm" coisa
+compile_ligador:
+	g++ ligador.cpp -o ligador -std=c++14
+
 

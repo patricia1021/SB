@@ -55,6 +55,8 @@ class Config {
 		map<string, vector<int>> use_table;
 		map<int, int> inst_size_table;
 
+		vector<int> lines_with_errors;
+
 		// flags
 		int eh_modulo = 0;
 		int num_ends = 0;
@@ -102,6 +104,8 @@ int check_error_primeira_passagem(Config &c);
 
 int check_error_segunda_passagem(Config &c);
 
+int check_valid_line(Config &c);
+
 int get_instruction(map<string, int> &t, string s);
 
 int existe_label(SimbolTable &simbol_table, string token);
@@ -135,7 +139,6 @@ int get_operando(string str, Operand &op);
 int validate_token(string s, int option);
 
 int monta_arquivo(fstream &fonte, string filename){
-	cout << filename << endl;
 	Config c;
 	inicializa_tabela_instrucao(c.instruction_table);
 	inicializa_tabela_tamanhos_instrucao(c.inst_size_table);
@@ -143,10 +146,7 @@ int monta_arquivo(fstream &fonte, string filename){
 	cout << BLU <<"==================================     MONTAGEM INICIADA    ===========================================" << endl << RESET;
 	primeira_passagem(fonte, c);
 	// so continua caso a primeira passagem esta livre de errors
-	if(!check_error_primeira_passagem(c)) {
-		cout << RED << "Arquivo nao montado por contem erros, favor corrigir os erros e tentar novamente!!" RESET<<endl;
-		return 0;
-	}
+	check_error_primeira_passagem(c);
 	segunda_passagem(fonte, c);
 	// so cintunua caso segunda passagem nao tenha erros
 	if(!check_error_segunda_passagem(c)){
@@ -175,6 +175,7 @@ int primeira_passagem(fstream &fonte, Config &c){
 		while(!fonte.eof()){
 			getline(fonte, line);
 			to_uppercase(line); // passa para maiusculo
+			c.se_tem_label = 0;
 
 			if(line.empty() // linha vazia nao faz nada
 					|| check_section_text(line, c.section_text_count) // comeco da secaon texto só pula
@@ -200,6 +201,7 @@ int primeira_passagem(fstream &fonte, Config &c){
 			}
 			if(eh_label(tokens[0])){
 				operacao = tokens[1];
+				c.se_tem_label = 1;
 				if(existe_label(c.simbol_table, token)){
 					c.err_type = ERRO_SEMANTICO;
 					c.err_subtype = TOKEN_ALREADY_EXISTS;
@@ -216,7 +218,14 @@ int primeira_passagem(fstream &fonte, Config &c){
 			if((i = get_instruction(c.instruction_table, operacao)) != 0){
 				//////////////////////////////      DEBUG            //////////////////////////////////////
 				/* cout << "linha " << c.count_line 1<<" instrucao encontrada: " << c.instruction_table[operacao] << endl; */
-				/* c.memory[c.count_pos] = 0; */
+				int copy_offset = (i == COPY? 1:0);
+				if(tokens.size() != c.se_tem_label + c.inst_size_table[i] - copy_offset){
+					c.err_type = ERRO_SINTATICO;
+					c.err_subtype = WRONG_ARG_NUM;
+					log_error(c);
+					c.count_line ++;
+					continue;
+				}
 				c.count_pos += c.inst_size_table[i];
 			}
 			else if(eh_diretiva(operacao)) {
@@ -275,7 +284,7 @@ int segunda_passagem(fstream &fonte, Config &c){
 		getline(fonte, line);
 		to_uppercase(line); // passa para maiusculo
 		c.count_line++;
-		if(line.empty()|| line != SECTION_TEXT){
+		if(line.empty()|| line != SECTION_TEXT || !check_valid_line(c)){
 			continue;
 		}
 		break;
@@ -287,7 +296,7 @@ int segunda_passagem(fstream &fonte, Config &c){
 		getline(fonte, line);
 		to_uppercase(line); // passa para maiusculo
 
-		if(line.empty() || check_section_data(line, c.section_data_count)){
+		if(line.empty() || check_section_data(line, c.section_data_count)|| !check_valid_line(c)){
 			c.count_line++;
 			continue;
 		}
@@ -377,6 +386,7 @@ int gera_arquivo_executavel(Config &c, string filename){
 		for(auto &cell:c.memory){
 			saida << cell.second->val << " ";
 		}
+		saida << endl;
 	}
 	saida.close();
 	return 1;
@@ -448,6 +458,10 @@ int check_error_primeira_passagem(Config &c){
 int check_error_segunda_passagem(Config &c){
 	if(c.num_errors) return 0;
 	return 1;
+}
+
+int check_valid_line(Config &c){
+	return !(find(c.lines_with_errors.begin(), c.lines_with_errors.end(), c.count_line) != c.lines_with_errors.end());
 }
 
 /**********************************************************************************
@@ -1020,7 +1034,7 @@ int set_public(string label, Config &c){
  * loga os error encotrados no codigo
  * ******************************************************************************/
 void log_error(Config &c){
-
+	c.lines_with_errors.push_back(c.count_line);
 	switch(c.err_type){
 		case ERRO_SINTATICO:
 			cout << RED << "<< Erro Sintatico >> ";
@@ -1084,6 +1098,7 @@ void log_error(Config &c){
 		default:
 			break;
 	}
+
 	c.num_errors++;
 	return;
 }

@@ -1,85 +1,108 @@
 /*Fazer um cóodigo (ligador.c) que receba por linha de comando o nome de até 4
-arquivos (a extensão \.o" deve estar presente em todos menos o último arquivo, o
-último deve ser extensão \.e"). O programa deve fazer a ligação entre os dois ou três
-primeiros módulos gerando o arquivo ligado de saída. O arquivo de saida deve ser em
-formato TEXTO contendo OPCODES e operandos sem quebra de linha, nem endereço
-indicado, sepradados por espaço, SEM O INDICADOR DE SEÇãO \CODE", sem a
-indicação de absoluto e relativo, sem tabelas (ou seja, somente uma linha de números).
-O ligador deve verificar durante o processo de ligação, se ficaram símbolos não
-definidos.*/ 
+  arquivos (a extensão \.o" deve estar presente em todos menos o último arquivo, o
+  último deve ser extensão \.e"). O programa deve fazer a ligação entre os dois ou três
+  primeiros módulos gerando o arquivo ligado de saída. O arquivo de saida deve ser em
+  formato TEXTO contendo OPCODES e operandos sem quebra de linha, nem endereço
+  indicado, sepradados por espaço, SEM O INDICADOR DE SEÇãO \CODE", sem a
+  indicação de absoluto e relativo, sem tabelas (ou seja, somente uma linha de números).
+  O ligador deve verificar durante o processo de ligação, se ficaram símbolos não
+  definidos.*/ 
 
-#include <stdio.h>
 
 #ifndef LIGADOR_CPP
 #define LIGADOR_CPP
+#include <iostream>
+#include <fstream>
+#include <memory>
+#include <map>
+#include <ctype.h>
+#include <string>
+#include "constantes.hpp"
+#include "helper.cpp"
 
-void ligador (int argc, char*argv[])
+using namespace std;
+
+
+class Modules{
+	public:
+		fstream files;
+		int correction_factor = 0;
+		map<string, int> definition_table;
+		map<string, vector<int>> use_table;
+		vector<int> realocation_table;
+
+};
+
+class ConfLig {
+	public:
+		vector<Modules> modules;
+		map<string, int> global_df;
+};
+
+int verifica_argumentos_ligador (int argc, char *argv[]);
+
+int verifica_extensao_ponto_o(string &s);
+
+int verifica_extensao_ponto_e(string &s);
+
+int check_and_open_files(ConfLig &c, int argc, char *argv[]);
+
+int liga_programa(int argc, char *argv[]);
+
+int main(int argc, char *argv[])
 {
-  FILE *open, *write;
-  int i;
-  char c;
+	// chama o ligador
+	liga_programa(argc, argv);
+	return 0;
+}
 
-	
+int liga_programa (int argc, char*argv[])
+{
+	ConfLig c;
+	if(verifica_argumentos_ligador(argc, argv) && check_and_open_files(c, argc, argv){
+
+	}
+	return 0;
+}
+
+int check_and_open_files(ConfLig &c, int argc, char *argv[]){
+	cout << "ENTREI OPEN FILES" << endl;
+	return 1;
+}
 /*********************************************************************************
  * Funcao que verifica a quantidade e a validade dos arguetos passados ao programa
  ********************************************************************************/
 int verifica_argumentos_ligador (int argc, char *argv[]){
-	vector<string> valid_args {"-o"}
-	if(argc < 2 || argc > 4)
+	if(argc < 3 || argc > 5)
 	{
 		cout << RED << "Quantidade de arquivos maior que o necessário.\n\n Execute o programa novamente com o numero correto de argumentos\n" << RESET;
 		return 0;
 	}
 	// checar se os primeiros arquivos são .o e o último é .e para todos os casos
-	if (argc == 2)
-	{
-		(in_array(argv[0]))
-		{
-		cout << "opcoes de compilacao invalidas" << endl;
-		return 0;
+	else {
+		for(int i = 1; i  < (argc - 1); i++){
+			string s = string(argv[i]);
+			if(!verifica_extensao_ponto_o(s)){
+				cout << RED <<"extencao do argumento "<<(i)<<" incorreta" <<RESET <<endl;
+				return 0;
+			}
+		}
+		string st = string(argv[argc-1]);
+		if(!verifica_extensao_ponto_e(st)){
+			cout << RED <<"extencao do arquivo de saida dever ser \".e\" " <<RESET <<endl;
+			return 0;
 		}
 	}
-	
-	else if (argc == 3)
-	{
-		(in_array(argv[0]))
-		{
-		cout << "opcoes de compilacao invalidas" << endl;
-		return 0;
-		}
-	}
-	
-	else if (argc == 4)
-	{
-		(in_array(argv[0]))
-		{
-		cout << "opcoes de compilacao invalidas" << endl;
-		return 0;
-		}
-	}
+	cout << "OK" << endl;
 	return 1;
-}	
-	
-  /*if (argv[3]...)
-  printf ("A extensão do último arquivo deve ser \.e"\n);
-  //para saber se a extenso do último arquivo é .e
-*/
-  //abre o arquivo aonde vai ser escrito
-  write = fopen ("arquivo_ligado.c", "w");
-  fclose(write);
-  //laço para abrir os argvs e escrever no
-  for(i = 0; i < argc; i++)
-	{
-    open = fopen(argv[i], "r");
-	  if(open == NULL)
-		  printf("Arquivo vazio\n",);
-    
-    write = fopen("arquivo_ligado.c", "r+");
-	  while((c = getc(open)) != EOF)
-		  putchar(c);
-
-	  fclose(open);
-  }
-  return(0);
 }
+
+int verifica_extensao_ponto_o(string &s){
+	return (s.substr(s.length()-2, s.length()).find(".o") != string::npos);
+}
+
+int verifica_extensao_ponto_e(string &s){
+	return (s.substr(s.length()-2, s.length()).find(".e") != string::npos);
+}
+
 #endif
