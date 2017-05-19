@@ -64,7 +64,7 @@ int check_EQU(string line, map<string, int> &equ_map){
 		num_args = tokens.size() - 2;
 		if(tokens.size() > 1) {
 			if(tokens[1] == EQU){
-				if(num_args = 1){ // EQU espera 1 argumento
+				if(num_args == 1){ // EQU espera 1 argumento
 					equ_map[token.substr(0,token.length()-1)] = stoi(tokens[2]); // insere no map
 				}
 				else
