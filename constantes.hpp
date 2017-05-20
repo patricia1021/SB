@@ -39,10 +39,15 @@ using namespace std;
 #define MISSING_SIMBOL -23
 #define DATA_ON_WRONG_SECTION -24
 #define COMAND_ON_WRONG_SECTION -25
+#define SPACE_ARGUMENT_NOT_POSITIVE -26
+#define INVALID_ADDRESS -27
+#define CANT_CHANGE_CONST -28
+#define CANT_JUMP_HERE -29
+#define MISSING_STOP -30
 
 // lexicos
 #define ERRO_LEXICO 3
-#define WRONG_TOKEN_FORMAT -30
+#define WRONG_TOKEN_FORMAT -40
 
 
 // validacao tokens

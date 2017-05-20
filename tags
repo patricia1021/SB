@@ -11,17 +11,19 @@ AUX	arquivos_teste_moodle/fat_mod_B.asm	/^	AUX: SPACE$/;"	l
 B	arquivos_teste_moodle/triangulo.asm	/^B:		SPACE$/;"	l
 B	testes/teste1.asm	/^B: Space$/;"	l
 BEGIN	constantes.hpp	/^const string BEGIN = "BEGIN";$/;"	v
-BLU	constantes.hpp	57;"	d
+BLU	constantes.hpp	60;"	d
+CANT_CHANGE_CONST	constantes.hpp	44;"	d
 COMAND_ON_WRONG_SECTION	constantes.hpp	41;"	d
 CONST	constantes.hpp	/^const string CONST = "CONST";$/;"	v
 CONSTANTES_HPP	constantes.hpp	4;"	d
+COPY	arquivos_teste_moodle/bin.asm	/^COPY DOIS,OLD_DATA ;out$/;"	l
 COPY	arquivos_teste_moodle/bin.asm	/^COPY NEW_DATA,OLD_DATA$/;"	l
 COPY	constantes.hpp	14;"	d
 COPY	testes/teste6.asm	/^COPY NEW$/;"	l
 COPY	testes/teste6.asm	/^COPY OLDOLDER$/;"	l
 COPY	testes/teste6.asm	/^COPY ONE, OLD$/;"	l
 COPY	testes/teste6.asm	/^COPY ZERO, OLDER$/;"	l
-CYN	constantes.hpp	59;"	d
+CYN	constantes.hpp	62;"	d
 CellMem	montador.cpp	/^typedef shared_ptr<MemCell> CellMem;$/;"	t	file:
 ConfLig	ligador.cpp	/^class ConfLig {$/;"	c	file:
 Config	montador.cpp	/^class Config {$/;"	c	file:
@@ -33,7 +35,7 @@ DOIS	arquivos_teste_moodle/triangulo.asm	/^DOIS:	CONST		2$/;"	l
 Div	testes/teste1.asm	/^Div 2ois$/;"	l
 END	constantes.hpp	/^const string END = "END";$/;"	v
 EQU	constantes.hpp	/^const string EQU = "EQU";$/;"	v
-ERRO_LEXICO	constantes.hpp	44;"	d
+ERRO_LEXICO	constantes.hpp	47;"	d
 ERRO_SEMANTICO	constantes.hpp	30;"	d
 ERRO_SINTATICO	constantes.hpp	24;"	d
 EXCEEDED_BEGIN_NUM	constantes.hpp	33;"	d
@@ -47,12 +49,12 @@ FIM	arquivos_teste_moodle/fat_mod_A.asm	/^	FIM: OUTPUT N$/;"	l
 FINAL	testes/teste6.asm	/^FINAL: OUTPUT LIMIT$/;"	l
 FLAG_O	constantes.hpp	/^const string FLAG_O = "-o";$/;"	v
 FLAG_P	constantes.hpp	/^const string FLAG_P = "-p";$/;"	v
-GET_COD_LINE	constantes.hpp	67;"	d
-GET_NEXT_ACTION	constantes.hpp	68;"	d
-GET_TABLE_DEFINITION_LINE	constantes.hpp	65;"	d
-GET_TABLE_REALOC_LINE	constantes.hpp	66;"	d
-GET_USE_TABLE_LINE	constantes.hpp	64;"	d
-GRN	constantes.hpp	55;"	d
+GET_COD_LINE	constantes.hpp	70;"	d
+GET_NEXT_ACTION	constantes.hpp	71;"	d
+GET_TABLE_DEFINITION_LINE	constantes.hpp	68;"	d
+GET_TABLE_REALOC_LINE	constantes.hpp	69;"	d
+GET_USE_TABLE_LINE	constantes.hpp	67;"	d
+GRN	constantes.hpp	58;"	d
 H	arquivos_teste_moodle/triangulo.asm	/^H:		SPACE$/;"	l
 H	testes/teste1.asm	/^H: Space$/;"	l
 HELPER_CPP	helper.cpp	12;"	d	file:
@@ -69,6 +71,7 @@ INPUT	testes/teste6.asm	/^INPUT LIMIT$/;"	l
 INPUt	testes/teste3.asm	/^INPUt #$/;"	l
 INSTRUCTION_NOT_FOUND	constantes.hpp	26;"	d
 INUPT	testes/teste1.asm	/^INUPT H$/;"	l
+INVALID_ADDRESS	constantes.hpp	43;"	d
 JMP	constantes.hpp	10;"	d
 JMP	testes/teste5.asm	/^JMP Var$/;"	l
 JMP	testes/teste6.asm	/^JMP FRONT$/;"	l
@@ -92,14 +95,14 @@ LOAD	testes/teste5.asm	/^LOAD N$/;"	l
 LOAD	testes/teste5.asm	/^LOAD N+2$/;"	l
 LoaD	testes/teste3.asm	/^LoaD #$/;"	l
 Load	testes/teste1.asm	/^Load B$/;"	l
-MAG	constantes.hpp	58;"	d
+MAG	constantes.hpp	61;"	d
 MISSING_END	constantes.hpp	35;"	d
 MISSING_SECTION_TEXT	constantes.hpp	36;"	d
 MISSING_SIMBOL	constantes.hpp	39;"	d
 MOD_A	arquivos_teste_moodle/fat_mod_A.asm	/^MOD_A: BEGIN$/;"	l
 MOD_B	arquivos_teste_moodle/fat_mod_A.asm	/^	MOD_B: EXTERN$/;"	l
 MOD_B	arquivos_teste_moodle/fat_mod_B.asm	/^MOD_B: BEGIN$/;"	l
-MONTA	constantes.hpp	72;"	d
+MONTA	constantes.hpp	75;"	d
 MONTADOR_CPP	montador.cpp	12;"	d	file:
 MULT	arquivos_teste_moodle/bin.asm	/^MULT DOIS$/;"	l
 MULT	arquivos_teste_moodle/triangulo.asm	/^MULT		H$/;"	l
@@ -127,13 +130,13 @@ OUTPUT	testes/teste6.asm	/^OUTPUT NEW$/;"	l
 OUTPUT	testes/teste6.asm	/^OUTPUT OLD$/;"	l
 Operand	montador.cpp	/^class Operand {$/;"	c	file:
 Output	testes/teste1.asm	/^Output R$/;"	l
-PREPROCESSA	constantes.hpp	71;"	d
+PREPROCESSA	constantes.hpp	74;"	d
 PREPROCESSA_CPP	preprocessador.cpp	10;"	d	file:
 PUBLIC	constantes.hpp	/^const string PUBLIC = "PUBLIC";$/;"	v
 R	arquivos_teste_moodle/triangulo.asm	/^R:		SPACE$/;"	l
 R	testes/teste1.asm	/^R: Space$/;"	l
-RED	constantes.hpp	54;"	d
-RESET	constantes.hpp	61;"	d
+RED	constantes.hpp	57;"	d
+RESET	constantes.hpp	64;"	d
 SECTION	arquivos_teste_moodle/bin.asm	/^SECTION DATA$/;"	l
 SECTION	arquivos_teste_moodle/bin.asm	/^SECTION TEXT$/;"	l
 SECTION	arquivos_teste_moodle/fat_mod_A.asm	/^SECTION DATA$/;"	l
@@ -157,6 +160,7 @@ SECTION_TEXT	constantes.hpp	/^const string SECTION_TEXT = "SECTION TEXT";$/;"	v
 SEMANTIC_ERROR	constantes.hpp	/^const string SEMANTIC_ERROR = "Semantic error: ";$/;"	v
 SModule	ligador.cpp	/^typedef shared_ptr<Module> SModule;$/;"	t	file:
 SPACE	constantes.hpp	/^const string SPACE = "SPACE";$/;"	v
+SPACE_ARGUMENT_NOT_POSITIVE	constantes.hpp	42;"	d
 STOP	arquivos_teste_moodle/bin.asm	/^STOP$/;"	l
 STOP	arquivos_teste_moodle/triangulo.asm	/^STOP$/;"	l
 STOP	constantes.hpp	19;"	d
@@ -175,19 +179,19 @@ Store	testes/teste1.asm	/^Store R$/;"	l
 TAM	testes/teste5.asm	/^TAM: equ 2$/;"	d
 TMP_DATA	arquivos_teste_moodle/bin.asm	/^TMP_DATA: SPACE$/;"	l
 TOKEN_ALREADY_EXISTS	constantes.hpp	31;"	d
-TOKEN_TYPE_1	constantes.hpp	49;"	d
-TOKEN_TYPE_2	constantes.hpp	50;"	d
-TOKEN_TYPE_3	constantes.hpp	51;"	d
-TOKEN_TYPE_4	constantes.hpp	52;"	d
+TOKEN_TYPE_1	constantes.hpp	52;"	d
+TOKEN_TYPE_2	constantes.hpp	53;"	d
+TOKEN_TYPE_3	constantes.hpp	54;"	d
+TOKEN_TYPE_4	constantes.hpp	55;"	d
 TRIANGULO	arquivos_teste_moodle/triangulo.asm	/^TRIANGULO: EQU 1 ;isto � uma constante$/;"	d
 Ts	montador.cpp	/^		Ts(int val, int outside = 0){$/;"	f	class:Ts
 Ts	montador.cpp	/^class Ts{$/;"	c	file:
 Var1	testes/teste5.asm	/^Var1: space$/;"	l
-WHT	constantes.hpp	60;"	d
+WHT	constantes.hpp	63;"	d
 WRONG_ARG_NUM	constantes.hpp	25;"	d
 WRONG_ARG_TYPE	constantes.hpp	27;"	d
-WRONG_TOKEN_FORMAT	constantes.hpp	45;"	d
-YEL	constantes.hpp	56;"	d
+WRONG_TOKEN_FORMAT	constantes.hpp	48;"	d
+YEL	constantes.hpp	59;"	d
 ZERO	testes/teste6.asm	/^ZERO: CONST 0$/;"	l
 adiciona_label	montador.cpp	/^void adiciona_label(SimbolTable &simbol_table, string simbol, int posicao){$/;"	f
 area	testes/teste4.asm	/^area: extern$/;"	l
@@ -198,12 +202,14 @@ build_output_file	ligador.cpp	/^void build_output_file(ConfLig &c, string filena
 check_EQU	preprocessador.cpp	/^int check_EQU(string line, map<string, int> &equ_map){$/;"	f
 check_IF	preprocessador.cpp	/^int check_IF(string line, fstream &fonte, fstream &saida, map<string, int> &equ_map){$/;"	f
 check_and_open_files	ligador.cpp	/^int check_and_open_files(ConfLig &c, int argc, char *argv[]){$/;"	f
+check_const	montador.cpp	/^int check_const(Config &c, Operand &a1){$/;"	f
 check_error_primeira_passagem	montador.cpp	/^int check_error_primeira_passagem(Config &c){$/;"	f
 check_error_segunda_passagem	montador.cpp	/^int check_error_segunda_passagem(Config &c){$/;"	f
 check_operandos	montador.cpp	/^int check_operandos(Config &c, vector<string> &tokens, int line_has_label){$/;"	f
 check_section_data	montador.cpp	/^int check_section_data(string &s, int &counter){$/;"	f
 check_section_text	montador.cpp	/^int check_section_text(string &s, int &counter){$/;"	f
 check_sections_order	montador.cpp	/^int check_sections_order(Config &c){$/;"	f
+check_space	montador.cpp	/^int check_space(Config &c, Operand &a1){$/;"	f
 check_valid_line	montador.cpp	/^int check_valid_line(Config &c){$/;"	f
 check_validade_tokens	montador.cpp	/^int check_validade_tokens(vector<string> &tokens){$/;"	f
 correct_by_factor	ligador.cpp	/^int correct_by_factor(SModule &module){$/;"	f
@@ -252,6 +258,7 @@ is_number	helper.cpp	/^bool is_number(const std::string& s)$/;"	f
 jmp	testes/teste4.asm	/^jmp modulo_b ;pulo para rótulo inválido$/;"	l
 jmpz	testes/teste3.asm	/^jmpz som ; pulo para rótulo inválido, deveria ser soma$/;"	l
 label	montador.cpp	/^		string label;$/;"	m	class:Operand	file:
+last_label	montador.cpp	/^		string last_label;$/;"	m	class:Config	file:
 liga_programa	ligador.cpp	/^int liga_programa (int argc, char*argv[])$/;"	f
 line	ligador.cpp	/^		string line;$/;"	m	class:Module	file:
 line	montador.cpp	/^		string line;$/;"	m	class:Config	file:
@@ -297,6 +304,7 @@ reduce	helper.cpp	/^std::string reduce(const std::string& str,$/;"	f
 relativo	montador.cpp	/^		int relativo = 0;$/;"	m	class:MemCell	file:
 run_diretiva	montador.cpp	/^int run_diretiva(Config &c){$/;"	f
 sTOP	testes/teste1.asm	/^sTOP$/;"	l
+se_const	montador.cpp	/^		int se_const = 0;$/;"	m	class:Ts	file:
 se_tem_label	montador.cpp	/^		int se_tem_label = 0;$/;"	m	class:Config	file:
 se_tem_td	ligador.cpp	/^		int se_tem_td = 0;$/;"	m	class:Module	file:
 se_tem_tu	ligador.cpp	/^		int se_tem_tu = 0;$/;"	m	class:Module	file:

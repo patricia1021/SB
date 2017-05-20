@@ -21,6 +21,7 @@ class Ts{
 		int val;
 		int outside;
 		int space_size = 0;
+		int se_const = 0;
 };
 
 typedef map<string, shared_ptr<Ts>> SimbolTable;
@@ -61,6 +62,9 @@ class Config {
 		int eh_modulo = 0;
 		int num_ends = 0;
 		int num_errors = 0;
+
+		int se_tem_stop = 0;
+
 		int section_data_count = 0;
 		int section_text_count = 0;
 
@@ -68,10 +72,12 @@ class Config {
 		string line;
 		string operacao;
 		int se_tem_label = 0;
+		string last_label;
 
 		// contados de linha e de endereco
 		int count_pos = 0;
 		int count_line = 1;
+
 
 		int err_type;
 		int err_subtype;
@@ -132,6 +138,10 @@ int set_definitions(Config &c);
 
 int check_operandos(Config &c, vector<string> &tokens, int line_has_label);
 
+int check_space(Config &c, Operand &a1);
+
+int check_can_jump(Config &c, Operand arg_1);
+
 int validate_copy(string str, Config &c);
 
 int get_operando(string str, Operand &op);
@@ -184,9 +194,6 @@ int primeira_passagem(fstream &fonte, Config &c){
 				continue;
 			}
 
-			//DEBUGG
-			/* cout << "line cout: " << c.count_line << " - pos_count: "<<c.count_pos << endl; */
-			/* cout << YEL << line << endl << RESET; */
 
 			split(line, delimiter, tokens); // separa os elementos da linha em tokens
 			token = tokens[0].substr(0, tokens[0].length() -1); // primeiro token da linha
@@ -211,6 +218,8 @@ int primeira_passagem(fstream &fonte, Config &c){
 				}
 				else {
 					adiciona_label(c.simbol_table, token, c.count_pos); // caso nao exista label, adiciona na TS com a posicao atual
+
+					c.last_label = token;
 				}
 			}
 
@@ -457,6 +466,13 @@ int check_error_primeira_passagem(Config &c){
  * **************************************************************************/
 int check_error_segunda_passagem(Config &c){
 	if(c.num_errors) return 0;
+
+	if(!c.se_tem_stop && !c.eh_modulo){
+		c.err_type = ERRO_SEMANTICO;
+		c.err_subtype = MISSING_STOP;
+		log_error(c);
+		return 0;
+	}
 	return 1;
 }
 
@@ -690,6 +706,30 @@ int set_definitions(Config &c){
 }
 
 /********************************************************************************
+ * Verifica se o operando nao ultrapassa os limites do space
+ * ******************************************************************************/
+int check_space(Config &c, Operand &a1){
+	auto aux = c.simbol_table[a1.label];
+	return aux->space_size >= a1.offset;
+}
+
+/********************************************************************************
+ * Verifica se o operando e uma constante
+ * ******************************************************************************/
+int check_const(Config &c, Operand &a1){
+	auto aux = c.simbol_table[a1.label];
+	return aux->se_const;
+}
+
+/********************************************************************************
+ * Verifica se o endereco e passivel de jump
+ * ******************************************************************************/
+int check_can_jump(Config &c, Operand arg_1){
+	auto aux = c.simbol_table[arg_1.label];
+	return (!check_const(c, arg_1) && aux->space_size == 0);
+}
+
+/********************************************************************************
  * verifca se linha a é o comeco da sessao de texto
  * ******************************************************************************/
 int check_section_text(string &s, int &counter){
@@ -797,10 +837,14 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 			// DEBUG
 			/* cout << CYN << "TRATANDO SPACE, argumento: " << argumentos[2] << RESET << endl; */
 			if(is_number(argumentos[2])){
-				aux = abs(stoi(argumentos[2]));
-				/* for(int j = 0; j < aux; j++){ */
-				/* 	c.memory[count_pos + j] = MemCell(0,1); */
-				/* } */
+				aux = stoi(argumentos[2]);
+				if(aux < 1){
+					c.err_type = ERRO_SEMANTICO;
+					c.err_subtype = SPACE_ARGUMENT_NOT_POSITIVE;
+					log_error(c);
+					return WRONG_ARG_NUM; // SPACE ou possui 1 ou nenum argumentos
+				}
+				c.simbol_table[c.last_label]->space_size = aux;
 				return aux;
 			}
 			else {
@@ -812,9 +856,7 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 			return -100;
 		}
 		else{
-			// DEBUG
-			/* cout << CYN << "TRATANDO SPACE, sem argumentos." << RESET << endl; */
-			/* c.memory[count_pos] = 0; */
+			c.simbol_table[c.last_label]->space_size = 1;
 			return 1; // space sem argumentis ocupa 1 espaco em memoria
 		}
 	}
@@ -825,10 +867,10 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 			log_error(c);
 			return WRONG_ARG_NUM; // CONST sempre possui 1 argumento
 		} else if(is_hex_string(argumentos[2])){
-			/* c.memory[count_pos] = strtol(argumentos[2].c_str(), NULL, 16); */
+			c.simbol_table[c.last_label]->se_const = 1;
 			return 1; // CONST SEMPRA OCUPA 1 espaco em memoria
 		} else if(is_number(argumentos[2])){
-			/* c.memory[count_pos] = stoi(argumentos[2]); */
+			c.simbol_table[c.last_label]->se_const = 1;
 			return 1; // CONST SEMPRA OCUPA 1 espaco em memoria
 		} else {
 			c.err_type = ERRO_LEXICO;
@@ -926,18 +968,57 @@ int executa_instrucao(Config &c){
 		split(args[1+offset], del, copy_args);
 		get_operando(copy_args[0], arg_1);
 		get_operando(copy_args[1], arg_2);
-		c.memory[c.count_pos++] = CellMem(new MemCell(COPY));
-		c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_1), 1));
-		c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_2), 1));
-		return 1;
+		//estou aqui
+		if(!check_space(c, arg_1) || !check_space(c, arg_2)) {
+			c.err_type = ERRO_SEMANTICO;
+			c.err_subtype = INVALID_ADDRESS;
+			log_error(c);
+			return 0;
+		}
+		else if(check_const(c, arg_2)){
+			c.err_type = ERRO_SEMANTICO;
+			c.err_subtype = CANT_CHANGE_CONST;
+			log_error(c);
+			return 0;
+		}else{
+			c.memory[c.count_pos++] = CellMem(new MemCell(COPY));
+			c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_1), 1));
+			c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_2), 1));
+			return 1;
+		}
+
 	}
 	else if(c.operacao == "STOP"){
 		c.memory[c.count_pos++] = CellMem(new MemCell(STOP));
+		c.se_tem_stop = 1;
 		return 1;
 	}
 	else{
 		get_operando(args[1+offset], arg_1);
-		c.memory[c.count_pos++] = CellMem(new MemCell(get_instruction(c.instruction_table, c.operacao)));
+		if(!check_space(c, arg_1)){
+			c.err_type = ERRO_SEMANTICO;
+			c.err_subtype = INVALID_ADDRESS;
+			log_error(c);
+			return 0;
+		}
+		int step = get_instruction(c.instruction_table, c.operacao);
+		if(step == INPUT || step == STORE){
+			if(check_const(c, arg_1)){
+				c.err_type = ERRO_SEMANTICO;
+				c.err_subtype = CANT_CHANGE_CONST;
+				log_error(c);
+				return 0;
+			}
+		}
+		if(step == JMP || step == JMPN || step == JMPP || step == JMPZ){
+			if(!check_can_jump(c, arg_1)){
+				c.err_type = ERRO_SEMANTICO;
+				c.err_subtype = CANT_JUMP_HERE;
+				log_error(c);
+				return 0;
+			}
+		}
+		c.memory[c.count_pos++] = CellMem(new MemCell(step));
 		c.memory[c.count_pos++] = CellMem(new MemCell(get_address(c, arg_1), 1));
 		return 1;
 	}
@@ -1092,6 +1173,21 @@ void log_error(Config &c){
 					break;
 				case COMAND_ON_WRONG_SECTION:
 					cout << "Comando declarado na sessao errada, linha: " << c.count_line << RESET <<endl;
+					break;
+				case SPACE_ARGUMENT_NOT_POSITIVE:
+					cout << "ARGUNENTO DO SPACE DEVE SER POSITIVO, linha: " << c.count_line << RESET <<endl;
+					break;
+				case INVALID_ADDRESS:
+					cout << "Nao e possivel acessar endereco especificado, linha: " << c.count_line << RESET <<endl;
+					break;
+				case CANT_CHANGE_CONST:
+					cout << "Nao e possivel alterar uma constante, linha: " << c.count_line << RESET <<endl;
+					break;
+				case CANT_JUMP_HERE:
+					cout << "Nao e possivel pular para este endereco, linha: " << c.count_line << RESET <<endl;
+					break;
+				case MISSING_STOP:
+					cout << "Programas que nao sao modulo precisam de pelo menos uma instrucao STOP" << RESET <<endl;
 					break;
 			}
 			break;
