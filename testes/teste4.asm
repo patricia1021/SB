@@ -5,6 +5,8 @@ SECTION TEXT
 mod_a: ; sem begin
 area: extern
 mod_b: extern
+d: extern
+; var inventada que não tem no outro mod
 public b
 public h
 input b
