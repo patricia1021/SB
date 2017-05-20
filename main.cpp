@@ -105,6 +105,7 @@ int montagem(fstream &fonte, fstream &saida_pre, char *argv[]){
 	else if(ext == ".pre"){
 		monta_arquivo(fonte, string(argv[3]));
 	}
+	return 1;
 }
 
 /**********************************************************************************

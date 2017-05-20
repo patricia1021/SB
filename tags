@@ -6,6 +6,7 @@
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ADD	constantes.hpp	6;"	d
 ADD	testes/teste5.asm	/^ADD val,n+3 ; mais de um arg$/;"	l
+ADD	testes/teste6.asm	/^ADD OLD$/;"	l
 AUX	arquivos_teste_moodle/fat_mod_B.asm	/^	AUX: SPACE$/;"	l
 B	arquivos_teste_moodle/triangulo.asm	/^B:		SPACE$/;"	l
 B	testes/teste1.asm	/^B: Space$/;"	l
@@ -16,6 +17,10 @@ CONST	constantes.hpp	/^const string CONST = "CONST";$/;"	v
 CONSTANTES_HPP	constantes.hpp	4;"	d
 COPY	arquivos_teste_moodle/bin.asm	/^COPY NEW_DATA,OLD_DATA$/;"	l
 COPY	constantes.hpp	14;"	d
+COPY	testes/teste6.asm	/^COPY NEW$/;"	l
+COPY	testes/teste6.asm	/^COPY OLDOLDER$/;"	l
+COPY	testes/teste6.asm	/^COPY ONE, OLD$/;"	l
+COPY	testes/teste6.asm	/^COPY ZERO, OLDER$/;"	l
 CYN	constantes.hpp	59;"	d
 CellMem	montador.cpp	/^typedef shared_ptr<MemCell> CellMem;$/;"	t	file:
 ConfLig	ligador.cpp	/^class ConfLig {$/;"	c	file:
@@ -39,6 +44,7 @@ EXTERN	constantes.hpp	/^const string EXTERN = "EXTERN";$/;"	v
 FAT	arquivos_teste_moodle/fat_mod_A.asm	/^	FAT: SUB ONE$/;"	l
 FAT	arquivos_teste_moodle/fat_mod_B.asm	/^	FAT: EXTERN$/;"	l
 FIM	arquivos_teste_moodle/fat_mod_A.asm	/^	FIM: OUTPUT N$/;"	l
+FINAL	testes/teste6.asm	/^FINAL: OUTPUT LIMIT$/;"	l
 FLAG_O	constantes.hpp	/^const string FLAG_O = "-o";$/;"	v
 FLAG_P	constantes.hpp	/^const string FLAG_P = "-p";$/;"	v
 GET_COD_LINE	constantes.hpp	67;"	d
@@ -59,14 +65,17 @@ INPUT	arquivos_teste_moodle/triangulo.asm	/^INPUT		B$/;"	l
 INPUT	arquivos_teste_moodle/triangulo.asm	/^INPUT		H$/;"	l
 INPUT	constantes.hpp	17;"	d
 INPUT	testes/teste2.asm	/^INPUT        N$/;"	l
+INPUT	testes/teste6.asm	/^INPUT LIMIT$/;"	l
 INPUt	testes/teste3.asm	/^INPUt #$/;"	l
 INSTRUCTION_NOT_FOUND	constantes.hpp	26;"	d
 INUPT	testes/teste1.asm	/^INUPT H$/;"	l
 JMP	constantes.hpp	10;"	d
 JMP	testes/teste5.asm	/^JMP Var$/;"	l
+JMP	testes/teste6.asm	/^JMP FRONT$/;"	l
 JMPN	constantes.hpp	11;"	d
 JMPP	arquivos_teste_moodle/bin.asm	/^JMPP L1$/;"	l
 JMPP	constantes.hpp	12;"	d
+JMPP	testes/teste6.asm	/^JMPP FINAL$/;"	l
 JMPZ	constantes.hpp	13;"	d
 L1	arquivos_teste_moodle/bin.asm	/^L1: DIV DOIS$/;"	l
 L1	testes/teste2.asm	/^L1: EQU 1$/;"	d
@@ -74,6 +83,7 @@ L2	testes/teste2.asm	/^L2: EQU 0$/;"	d
 L2	testes/teste5.asm	/^L2: EQU 0$/;"	d
 L3	testes/teste5.asm	/^L3: EQUAL 1$/;"	l
 LIGADOR_CPP	ligador.cpp	13;"	d	file:
+LIMIT	testes/teste6.asm	/^LIMIT: SPACE$/;"	l
 LOAD	arquivos_teste_moodle/bin.asm	/^LOAD OLD_DATA$/;"	l
 LOAD	arquivos_teste_moodle/triangulo.asm	/^LOAD		B$/;"	l
 LOAD	constantes.hpp	15;"	d
@@ -94,8 +104,6 @@ MONTADOR_CPP	montador.cpp	12;"	d	file:
 MULT	arquivos_teste_moodle/bin.asm	/^MULT DOIS$/;"	l
 MULT	arquivos_teste_moodle/triangulo.asm	/^MULT		H$/;"	l
 MULT	constantes.hpp	8;"	d
-MemCell	ligador.cpp	/^		MemCell(int val, int se_changed = 0){$/;"	f	class:MemCell
-MemCell	ligador.cpp	/^class MemCell {$/;"	c	file:
 MemCell	montador.cpp	/^		MemCell(int val, int relativo = 0){$/;"	f	class:MemCell
 MemCell	montador.cpp	/^class MemCell {$/;"	c	file:
 Module	ligador.cpp	/^		Module(){}$/;"	f	class:Module
@@ -105,12 +113,18 @@ N	arquivos_teste_moodle/fat_mod_A.asm	/^	N: SPACE$/;"	l
 N	arquivos_teste_moodle/fat_mod_B.asm	/^	N: EXTERN$/;"	l
 N	testes/teste2.asm	/^N:          SPACE$/;"	l
 N	testes/teste5.asm	/^N: SPACE 3$/;"	l
+NEW	testes/teste6.asm	/^NEW: SPACE$/;"	l
 NEW_DATA	arquivos_teste_moodle/bin.asm	/^NEW_DATA: SPACE$/;"	l
+OLD	testes/teste6.asm	/^OLD: SPACE$/;"	l
+OLDER	testes/teste6.asm	/^OLDER: SPACE$/;"	l
 OLD_DATA	arquivos_teste_moodle/bin.asm	/^OLD_DATA: SPACE$/;"	l
 ONE	arquivos_teste_moodle/fat_mod_A.asm	/^	ONE: CONST 1$/;"	l
+ONE	testes/teste6.asm	/^ONE: CONST 1$/;"	l
 OUTPUT	arquivos_teste_moodle/bin.asm	/^OUTPUT TMP_DATA$/;"	l
 OUTPUT	arquivos_teste_moodle/triangulo.asm	/^OUTPUT	R$/;"	l
 OUTPUT	constantes.hpp	18;"	d
+OUTPUT	testes/teste6.asm	/^OUTPUT NEW$/;"	l
+OUTPUT	testes/teste6.asm	/^OUTPUT OLD$/;"	l
 Operand	montador.cpp	/^class Operand {$/;"	c	file:
 Output	testes/teste1.asm	/^Output R$/;"	l
 PREPROCESSA	constantes.hpp	71;"	d
@@ -141,18 +155,20 @@ SECTIONS_IN_WRONG_ORDER	constantes.hpp	32;"	d
 SECTION_DATA	constantes.hpp	/^const string SECTION_DATA = "SECTION DATA";$/;"	v
 SECTION_TEXT	constantes.hpp	/^const string SECTION_TEXT = "SECTION TEXT";$/;"	v
 SEMANTIC_ERROR	constantes.hpp	/^const string SEMANTIC_ERROR = "Semantic error: ";$/;"	v
-SMemCell	ligador.cpp	/^typedef shared_ptr<MemCell> SMemCell;$/;"	t	file:
 SModule	ligador.cpp	/^typedef shared_ptr<Module> SModule;$/;"	t	file:
 SPACE	constantes.hpp	/^const string SPACE = "SPACE";$/;"	v
 STOP	arquivos_teste_moodle/bin.asm	/^STOP$/;"	l
 STOP	arquivos_teste_moodle/triangulo.asm	/^STOP$/;"	l
 STOP	constantes.hpp	19;"	d
+STOP	testes/teste6.asm	/^STOP$/;"	l
 STORE	arquivos_teste_moodle/bin.asm	/^STORE  NEW_DATA$/;"	l
 STORE	arquivos_teste_moodle/bin.asm	/^STORE TMP_DATA$/;"	l
 STORE	arquivos_teste_moodle/triangulo.asm	/^STORE		R$/;"	l
 STORE	constantes.hpp	16;"	d
+STORE	testes/teste6.asm	/^STORE NEW$/;"	l
 SUB	arquivos_teste_moodle/bin.asm	/^SUB TMP_DATA$/;"	l
 SUB	constantes.hpp	7;"	d
+SUB	testes/teste6.asm	/^SUB LIMIT$/;"	l
 SYNTAX_ERROR	constantes.hpp	/^const string SYNTAX_ERROR = "Syntax error: ";$/;"	v
 SimbolTable	montador.cpp	/^typedef map<string, shared_ptr<Ts>> SimbolTable;$/;"	t	file:
 Store	testes/teste1.asm	/^Store R$/;"	l
@@ -172,11 +188,13 @@ WRONG_ARG_NUM	constantes.hpp	25;"	d
 WRONG_ARG_TYPE	constantes.hpp	27;"	d
 WRONG_TOKEN_FORMAT	constantes.hpp	45;"	d
 YEL	constantes.hpp	56;"	d
+ZERO	testes/teste6.asm	/^ZERO: CONST 0$/;"	l
 adiciona_label	montador.cpp	/^void adiciona_label(SimbolTable &simbol_table, string simbol, int posicao){$/;"	f
 area	testes/teste4.asm	/^area: extern$/;"	l
 area	testes/teste4.asm	/^area: space$/;"	l
 b	testes/teste4.asm	/^b: extern$/;"	l
 b	testes/teste4.asm	/^b: space$/;"	l
+build_output_file	ligador.cpp	/^void build_output_file(ConfLig &c, string filename){$/;"	f
 check_EQU	preprocessador.cpp	/^int check_EQU(string line, map<string, int> &equ_map){$/;"	f
 check_IF	preprocessador.cpp	/^int check_IF(string line, fstream &fonte, fstream &saida, map<string, int> &equ_map){$/;"	f
 check_and_open_files	ligador.cpp	/^int check_and_open_files(ConfLig &c, int argc, char *argv[]){$/;"	f
@@ -208,6 +226,7 @@ executa_instrucao	montador.cpp	/^int executa_instrucao(Config &c){$/;"	f
 existe_label	montador.cpp	/^int existe_label(SimbolTable &simbol_table, string token){$/;"	f
 file	ligador.cpp	/^		fstream file;$/;"	m	class:Module	file:
 filtra_comentario	preprocessador.cpp	/^string filtra_comentario(string line){$/;"	f
+fix_simbol_values	ligador.cpp	/^int fix_simbol_values(ConfLig &c){$/;"	f
 gera_arquivo_executavel	montador.cpp	/^int gera_arquivo_executavel(Config &c, string filename){$/;"	f
 gera_tgs	ligador.cpp	/^int gera_tgs(ConfLig &c){$/;"	f
 get_address	montador.cpp	/^int get_address(Config &c, Operand &op){$/;"	f
@@ -259,6 +278,7 @@ offset	montador.cpp	/^		int offset = 0;$/;"	m	class:Operand	file:
 operacao	montador.cpp	/^		string operacao;$/;"	m	class:Config	file:
 output	testes/teste4.asm	/^output area$/;"	l
 outside	montador.cpp	/^		int outside;$/;"	m	class:Ts	file:
+patch_memory	ligador.cpp	/^int patch_memory(ConfLig &c){$/;"	f
 preprocessa_arquivo	preprocessador.cpp	/^int preprocessa_arquivo(fstream &fonte, fstream &saida_pre, char *argv[]){$/;"	f
 primeira_passagem	montador.cpp	/^int primeira_passagem(fstream &fonte, Config &c){$/;"	f
 proceed	preprocessador.cpp	/^void proceed(string &line, fstream &saida){$/;"	f
@@ -266,6 +286,7 @@ public	testes/teste4.asm	/^public b$/;"	l
 public	testes/teste4.asm	/^public h$/;"	l
 public	testes/teste4.asm	/^public mod_b$/;"	l
 public	testes/teste4.asm	/^public soma$/;"	l
+push_gdt	ligador.cpp	/^int push_gdt(ConfLig &c, SModule &m){$/;"	f
 put_in_mem	ligador.cpp	/^int put_in_mem(ConfLig &c, SModule &m){$/;"	f
 put_in_td	ligador.cpp	/^int put_in_td(SModule &m){$/;"	f
 put_in_tr	ligador.cpp	/^int put_in_tr(SModule &m){$/;"	f
@@ -276,10 +297,11 @@ reduce	helper.cpp	/^std::string reduce(const std::string& str,$/;"	f
 relativo	montador.cpp	/^		int relativo = 0;$/;"	m	class:MemCell	file:
 run_diretiva	montador.cpp	/^int run_diretiva(Config &c){$/;"	f
 sTOP	testes/teste1.asm	/^sTOP$/;"	l
-se_changed	ligador.cpp	/^		int se_changed = 0;$/;"	m	class:MemCell	file:
 se_tem_label	montador.cpp	/^		int se_tem_label = 0;$/;"	m	class:Config	file:
 se_tem_td	ligador.cpp	/^		int se_tem_td = 0;$/;"	m	class:Module	file:
 se_tem_tu	ligador.cpp	/^		int se_tem_tu = 0;$/;"	m	class:Module	file:
+section	testes/teste6.asm	/^section data$/;"	l
+section	testes/teste6.asm	/^section text$/;"	l
 section_data_count	montador.cpp	/^		int section_data_count = 0;$/;"	m	class:Config	file:
 section_text_count	montador.cpp	/^		int section_text_count = 0;$/;"	m	class:Config	file:
 segunda_passagem	montador.cpp	/^int segunda_passagem(fstream &fonte, Config &c){$/;"	f
@@ -298,7 +320,6 @@ to_uppercase	helper.cpp	/^void to_uppercase(string &str){$/;"	f
 trim	helper.cpp	/^std::string trim(const std::string& str,$/;"	f
 use_table	ligador.cpp	/^		map<string, vector<int>> use_table;$/;"	m	class:Module	file:
 use_table	montador.cpp	/^		map<string, vector<int>> use_table;$/;"	m	class:Config	file:
-val	ligador.cpp	/^		int val;$/;"	m	class:MemCell	file:
 val	montador.cpp	/^		int val;$/;"	m	class:MemCell	file:
 val	montador.cpp	/^		int val;$/;"	m	class:Ts	file:
 val	testes/teste5.asm	/^val: const tam$/;"	l

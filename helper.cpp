@@ -91,7 +91,6 @@ bool is_hex_string(std::string& s) {
 	const char *c = "X";
 	split(str, c, v);
 	if(v.size() > 2 || v[0] != "0") return 0;
-	int is_x = 1;
 
 	for(auto &x:v[1]) {
 		if(!isxdigit(x)) return 0;

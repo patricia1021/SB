@@ -219,7 +219,7 @@ int primeira_passagem(fstream &fonte, Config &c){
 				//////////////////////////////      DEBUG            //////////////////////////////////////
 				/* cout << "linha " << c.count_line 1<<" instrucao encontrada: " << c.instruction_table[operacao] << endl; */
 				int copy_offset = (i == COPY? 1:0);
-				if(tokens.size() != c.se_tem_label + c.inst_size_table[i] - copy_offset){
+				if(tokens.size() != unsigned(c.se_tem_label + c.inst_size_table[i] - copy_offset)){
 					c.err_type = ERRO_SINTATICO;
 					c.err_subtype = WRONG_ARG_NUM;
 					log_error(c);
@@ -474,7 +474,9 @@ int check_sections_order(Config &c){
 		c.err_subtype = SECTIONS_IN_WRONG_ORDER;
 		count++;
 		log_error(c);
+		return 0;
 	}
+	return 1;
 }
 
 /********************************************************************************
@@ -531,7 +533,6 @@ int check_validade_tokens(vector<string> &tokens){
  * ****************************************************************************/
 int validate_token(string s, int option){
 	int plus_num = 2;
-	int comma_num = 2;
 	vector<string> v;
 	const char *d = ",";
 	if(option == TOKEN_TYPE_1){
@@ -562,6 +563,7 @@ int validate_token(string s, int option){
 		if(v.size() != 2) return 0;
 		return validate_token(v[0], TOKEN_TYPE_2) && validate_token(v[1], TOKEN_TYPE_2);
 	}
+	return 1;
 }
 
 /********************************************************************************
@@ -675,19 +677,23 @@ int get_operando(string str, Operand &op){
  * popula tabela de dfinicoes com os valores corretos
  * ****************************************************************************/
 int set_definitions(Config &c){
+	int result = 1;
 	for(auto &it: c.definition_table){
 		auto aux = c.simbol_table.find(it.first);
 		if(aux != c.simbol_table.end()){
 			c.definition_table[it.first] = aux->second->val;
+		}else{
+			result&=0;
 		}
 	}
+	return result;
 }
 
 /********************************************************************************
  * verifca se linha a é o comeco da sessao de texto
  * ******************************************************************************/
 int check_section_text(string &s, int &counter){
-	int size = SECTION_TEXT.length();
+	unsigned int size = SECTION_TEXT.length();
 	if(s.find(SECTION_TEXT)!= string::npos && s.length() == size){
 		counter++;
 		return 1;
@@ -699,7 +705,7 @@ int check_section_text(string &s, int &counter){
  * verifica se a linha eh o comeco da sesao de dados
  * ******************************************************************************/
 int check_section_data(string &s, int &counter){
-	int size = SECTION_DATA.length();
+	unsigned int size = SECTION_DATA.length();
 
 	if(s.find(SECTION_DATA)!= string::npos && s.length() == size){
 		counter++;
@@ -777,7 +783,6 @@ int eh_diretiva(string &s){
  * ocupa
  * ******************************************************************************/
 int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int count_pos, int count_line){
-	int result;
 	int arg_size = argumentos.size();
 	int aux;
 	Operand arg_1;
@@ -944,10 +949,10 @@ int run_diretiva(Config &c){
 	const char *speice = " ";
 	split(c.line, speice, args);
 
-	int offset = 0;
-	if(c.se_tem_label){
-		offset = 1;
-	}
+	/* int offset = 0; */
+	/* if(c.se_tem_label){ */
+	/* 	offset = 1; */
+	/* } */
 
 	if(in_array(c.operacao, vector<string>{BEGIN, EXTERN, PUBLIC, END})){
 		return 1;
@@ -1021,13 +1026,16 @@ int set_extern(string label, SimbolTable &simbol_table){
 	if(it != simbol_table.end()){
 		it->second->outside = 1;
 		it->second->val = 0;
+		return 1;
 	}
+	return 0;
 }
 /********************************************************************************
  * se o label for public, insere na tabela de definicaoes
  * ******************************************************************************/
 int set_public(string label, Config &c){
 	c.definition_table[label] = 0;
+	return 1;
 }
 
 /********************************************************************************

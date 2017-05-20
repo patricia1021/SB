@@ -74,6 +74,10 @@ int push_gdt(ConfLig &c, SModule &m);
 
 int fix_simbol_values(ConfLig &c);
 
+int patch_memory(ConfLig &c);
+
+void build_output_file(ConfLig &c, string filename);
+
 int liga_programa(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
@@ -91,9 +95,13 @@ int liga_programa (int argc, char*argv[])
 	ConfLig c;
 	if(verifica_argumentos_ligador(argc, argv) && check_and_open_files(c, argc, argv)){
 		gera_tgs(c);
-		fix_simbol_values(c);
-		cout << GRN << "OK" << endl;
-		/* patch_memory(c); */
+		if(fix_simbol_values(c)){
+			patch_memory(c);
+			build_output_file(c, string(argv[argc -1]));
+		}
+		else{
+			cout << RED << "Nai foi possivel gerar o arquivo executavel, por haver erros de ligacao" << RESET <<endl;
+		}
 	}else{
 		cout << RED << "arquivos falharam" << endl;
 	}
@@ -185,6 +193,7 @@ int gera_tgs(ConfLig &c){
 		correct_by_factor(module);
 		push_gdt(c, module);
 	}
+	return 1;
 }
 
 /**************************************************************************
@@ -251,7 +260,7 @@ int put_in_mem(ConfLig &c, SModule &m){
 		}
 	}
 	// tamanho da tabela de realocao precisa ser igual ao tamanho do modulo
-	if(m->realocation_table.size() == counter){
+	if(m->realocation_table.size() == unsigned(counter)){
 		counter = 0;
 		for(auto el:v){
 			if(is_number(el)){
@@ -302,6 +311,7 @@ int correct_by_factor(SModule &module){
 			module->use_table[it.first][v_count++] = el+c_factor;
 		}
 	}
+	return 1;
 }
 
 /**************************************************************************
@@ -309,15 +319,36 @@ int correct_by_factor(SModule &module){
  * enderecoes em em que eles aparecem
  * ***********************************************************************/
 int fix_simbol_values(ConfLig &c){
+	int result = 1;
 	for(auto m:c.modules){
 		int cf = m->correction_factor;
 		for(auto el:m->use_table){
-			int el_value = c.global_df[el.first];
-			for(auto line: el.second){
-				m->mod_memory[line - cf] = (m->mod_memory[line - cf] - cf) + el_value;
+			if(c.global_df.find(el.first)!= c.global_df.end()){
+				int el_value = c.global_df[el.first];
+				for(auto line: el.second){
+					m->mod_memory[line - cf] = (m->mod_memory[line - cf] - cf) + el_value;
+				}
+			}
+			else{
+				cout << RED << "<<Erro de ligacao>> Simbolo Usado mas nao definido: "<< el.first << endl;
+				result&=0;
 			}
 		}
 	}
+	return result;
+}
+
+/*********************************************************************************
+ * junta a memoria dos modulos em uma moria unica
+ ********************************************************************************/
+int patch_memory(ConfLig &c){
+	int counter = 0;
+	for(auto m:c.modules){
+		for(auto it:m->mod_memory){
+			c.memory[counter++] = it.second;
+		}
+	}
+	return 1;
 }
 
 /*********************************************************************************
@@ -366,6 +397,20 @@ int verifica_argumentos_ligador (int argc, char *argv[]){
 	return 1;
 }
 
+/*********************************************************************************
+ * Cria o arquivo de saida e preenche com os opecodes
+ ********************************************************************************/
+void build_output_file(ConfLig &c, string filename){
+	cout << "FILENAME: "<< filename << endl;
+	fstream saida(filename, fstream::out| fstream::trunc);
+	if(saida.is_open()){
+		cout << YEL << "MEMORY" << endl << RESET;
+		for(auto el: c.memory){
+			saida << el.second << " ";
+		}
+	}
+	saida.close();
+}
 
 /*********************************************************************************
  * Funcao com nome intuitivo
