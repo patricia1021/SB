@@ -12,4 +12,7 @@ compile_montador:
 compile_ligador:
 	g++ ligador.cpp -o ligador -std=c++14 -Wall
 
+preprocess:
+	./prog -p "arquivos_teste_moodle/bin.asm" bin
+
 

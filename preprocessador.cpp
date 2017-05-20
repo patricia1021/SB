@@ -9,15 +9,19 @@
 #ifndef PREPROCESSA_CPP
 #define PREPROCESSA_CPP
 
+typedef map<string,int> EquMap;
+
 int preprocessa_arquivo(fstream &fonte, fstream &saida_pre, char *argv[]);
 
 int check_EQU(string line, map<string, int> &equ_map);
 
 int check_IF(string line, fstream &fonte, fstream &saida, map<string, int> &equ_map);
 
-void proceed(string &line, fstream &saida);
+void proceed(string &line, fstream &saida, EquMap &em);
 
 string filtra_comentario(string line);
+
+int get_operand_p(string s, vector<string> &v, EquMap &em);
 
 /*********************************************************************************
  * funcao com a logica principal de execucao das diretivas de precompilacao 
@@ -37,7 +41,7 @@ int preprocessa_arquivo(fstream &fonte, fstream &saida_pre, char *argv[]){
 			if(line.empty()) continue; // caso seja linha em branco, naa faz nada
 			if(!check_EQU(line, equ_map)){ // identifica e trata a diretiva EQU
 				if(!check_IF(line, fonte, saida_pre, equ_map)){ // identifica e trata a diretiva IF
-					proceed(line, saida_pre); // somente transcreve a proxima linha
+					proceed(line, saida_pre, equ_map); // somente transcreve a proxima linha
 				}
 			}
 		}
@@ -95,15 +99,18 @@ int check_IF(string line, fstream &fonte, fstream &saida, map<string, int> &equ_
 				nextline = (reduce(nextline)); // retira tabs e espacoes em branco desnecessarios
 				nextline = filtra_comentario(nextline); // retira comentarios
 				if(equ_map[tokens[1]] > 0){
+					return 1;
 					saida << nextline << endl;
 				}
 				return 1;
 			}
 			else
-				cout << RED << SEMANTIC_ERROR <<"Simbolo "<< tokens[1] << " nao foi definido previamente"<<endl <<RESET;
+				cout << RED << "Erro de preprocessamento, " <<"Simbolo "<< tokens[1] << " nao foi definido previamente, linha: [[   " <<line << "   ]]"<<endl <<RESET;
+
 		}
 		else
 			cout << RED << SYNTAX_ERROR << "numero incorrento de argumemntos para a diretiva IF" << endl;
+		return 1;
 	}
 	return 0;
 }
@@ -111,10 +118,79 @@ int check_IF(string line, fstream &fonte, fstream &saida, map<string, int> &equ_
 /***************************************************************************
  * transcreve a linha para o arquivo de saida
  * *************************************************************************/
-void proceed(string &line, fstream &saida){
-	saida << line << endl;
+void proceed(string &line, fstream &saida, EquMap &em){
+	vector<string> tokens;
+	vector<string> copy_args;
+	vector<string> operands;
+
+	const char *tok_del = " ";
+	const char *copy_del = ",";
+	const char *op_sep = "+";
+
+	int se_label = 0;
+	string token;
+	string result = "";
+	split(line, tok_del, tokens);
+	if(eh_label(tokens[0])){
+		se_label = 1;
+		token = tokens[0].substr(0, tokens[0].length()-1);
+		auto it = em.find(token);
+		if(it!=em.end()){
+			result+=to_string(it->second)+": ";
+		}
+		else{
+			result+=tokens[0]+" ";
+		}
+	}
+	for(int i = se_label; unsigned(i) < tokens.size();i++){
+		split(tokens[i], copy_del, copy_args);
+		if(copy_args.size() > 1){
+			vector<string> comma;
+			for(auto el:copy_args){
+				string aux;
+				vector<string> ops;
+				get_operand_p(el, ops, em);
+				string aux2 = join(ops, op_sep);
+				aux = (ops.size() > 1 ? aux2.substr(0, aux2.length()-1) : ops[0]);
+				comma.push_back(aux);
+			}
+			result+=join(comma,copy_del);
+			result = result.substr(0,result.length()-1) + " ";
+			continue;
+		}
+		split(tokens[i], op_sep, operands);
+		if(operands.size() > 1){
+			vector<string> ops;
+			get_operand_p(tokens[i], ops, em);
+			string aux2 = join(ops, op_sep);
+			result+= (ops.size() > 1 ? aux2.substr(0, aux2.length()-1)+" ": ops[0] +" ");
+			continue;
+		}
+		auto it = em.find(tokens[i]);
+		if(it!=em.end()){
+			result+=to_string(it->second)+" ";
+		}
+		else{
+			result+=tokens[i]+" ";
+		}
+	}
+	saida << reduce(result) << endl;
 }
 
+int get_operand_p(string s, vector<string> &v, EquMap &em){
+	vector<string> vec;
+	const char *del = "+";
+	split(s, del, vec);
+	for(auto el: vec){
+		auto it = em.find(el);
+		if(it != em.end()){
+			v.push_back(to_string(it->second));
+		}else{
+			v.push_back(el);
+		}
+	}
+	return 1;
+}
 /******************************************************************************
  * funcao que retira os comentarios da linha
  * ***************************************************************************/

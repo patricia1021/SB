@@ -2,6 +2,8 @@
  * Esse modulo contem funcoes de apoio para manipulacao de strings
  ******************************************************************/
 #include <string>
+#include <sstream>
+#include <iterator>
 #include <string.h>
 #include <vector>
 #include <algorithm>
@@ -53,6 +55,12 @@ std::string reduce(const std::string& str,
 		beginSpace = result.find_first_of(whitespace, newStart);
 	}
 	return result;
+}
+string join(const vector<string>& vec, const char* delim)
+{
+    stringstream res;
+    copy(vec.begin(), vec.end(), ostream_iterator<string>(res, delim));
+    return res.str();
 }
 
 /*******************************************************************************

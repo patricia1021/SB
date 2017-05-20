@@ -160,7 +160,7 @@ int monta_arquivo(fstream &fonte, string filename){
 	segunda_passagem(fonte, c);
 	// so cintunua caso segunda passagem nao tenha erros
 	if(!check_error_segunda_passagem(c)){
-		cout << RED << "Arquivo nao montado por contem erros, favor corrigir os erros e tentar novamente!!" RESET<<endl;
+		cout << RED << "Arquivo nao montado por conter erros, favor corrigir os erros e tentar novamente!!" RESET<<endl;
 		return 0;
 	}
 	gera_arquivo_executavel(c, filename);
@@ -207,8 +207,6 @@ int primeira_passagem(fstream &fonte, Config &c){
 				continue;
 			}
 			if(eh_label(tokens[0])){
-				operacao = tokens[1];
-				c.se_tem_label = 1;
 				if(existe_label(c.simbol_table, token)){
 					c.err_type = ERRO_SEMANTICO;
 					c.err_subtype = TOKEN_ALREADY_EXISTS;
@@ -216,11 +214,14 @@ int primeira_passagem(fstream &fonte, Config &c){
 					c.count_line++;
 					continue;
 				}
-				else {
-					adiciona_label(c.simbol_table, token, c.count_pos); // caso nao exista label, adiciona na TS com a posicao atual
-
-					c.last_label = token;
+				adiciona_label(c.simbol_table, token, c.count_pos); // caso nao exista label, adiciona na TS com a posicao atual
+				c.last_label = token;
+				if(tokens.size() < 2){
+					c.count_line++;
+					continue;
 				}
+				operacao = tokens[1];
+				c.se_tem_label = 1;
 			}
 
 			int i;
@@ -510,7 +511,10 @@ int check_validade_tokens(vector<string> &tokens){
 			if(eh_label(s)){
 				s = s.substr(0, s.length()-1);
 				tem_label = 1;
-				operacao = tokens[1];
+				if(tokens.size()>1)
+					operacao = tokens[1];
+				else
+					operacao="";
 			}
 		}
 		int se_diretiva = eh_diretiva(operacao);

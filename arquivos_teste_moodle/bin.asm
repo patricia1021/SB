@@ -1,4 +1,3 @@
-
 ;Programa que transforma um número decimal
 ;a binário
 SECTION TEXT
