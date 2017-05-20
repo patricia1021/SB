@@ -15,7 +15,8 @@ LOAD N
 IF L2
 LOAD N+2
 var2: var1: load N ; 2 rts
-ADD val,n+3 ; mais de um arg
+ADD val,n+1; mais de um arg
+Add n+8
 JMP Var
 ;falta stop
 SECTION DATA
