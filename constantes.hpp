@@ -60,6 +60,14 @@ using namespace std;
 #define WHT   "\x1B[37m"
 #define RESET "\x1B[0m"
 
+// ACOES DO LIGADOR
+#define GET_USE_TABLE_LINE 1
+#define GET_TABLE_DEFINITION_LINE 2
+#define GET_TABLE_REALOC_LINE 3
+#define GET_COD_LINE 5
+#define GET_NEXT_ACTION 4
+
+
 #define PREPROCESSA 1
 #define MONTA 2
 const string FLAG_O = "-o";

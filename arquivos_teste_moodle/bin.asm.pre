@@ -1,11 +1,8 @@
-
-;Programa que transforma um número decimal
-;a binário
 SECTION TEXT
 INPUT OLD_DATA
 LOAD OLD_DATA
 L1: DIV DOIS
-STORE  NEW_DATA
+STORE NEW_DATA
 MULT DOIS
 STORE TMP_DATA
 LOAD OLD_DATA
