@@ -16,8 +16,10 @@ Compilação do montador:
 Utilize o comando abaixo para compilar o montador:
 	$ g++ main.cpp -o NOME -std=c++14
 <br />
+<br />
 Para execução do programa, utilize:
 	$ ./NOME -o ARQUIVO_ENTRADA.asm ARQUIVO_SAIDA
+<br />
 <br />
 Para preprocessamento, utilize:
 	$ ./NOME -p ARQUIVO ENTRADA.asm ARQUIVO_SAIDA
@@ -25,9 +27,11 @@ Para preprocessamento, utilize:
 ==============================            LIGADOR                   ===================================<br />
 O ligador recebe como argumentos 2 ou 3 arquivos para serem ligados e 1 nome do arquivo de saída e gera um 1 arquivo executável.
 <br />
+<br />
 Compilação do ligador:
 Utilize o comando abaixo para compilar o ligador:
 	$ g++ ligador.cpp -o NOME -std=c++14 -Wall
+<br />
 <br />
 Para executar o ligador, utilize:
 	$ ./NOME ARQUIVO_1.o ARQUIVO_2.o ARQUIVO_SAIDA.e
