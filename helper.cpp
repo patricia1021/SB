@@ -95,6 +95,8 @@ void to_uppercase(string &str){
 bool is_hex_string(std::string& s) {
 	string str = s;
 	to_uppercase(str);
+	if(s[0] == '-')
+		str = s.substr(1,s.length());
 	vector<string> v;
 	const char *c = "X";
 	split(str, c, v);

@@ -226,8 +226,6 @@ int primeira_passagem(fstream &fonte, Config &c){
 
 			int i;
 			if((i = get_instruction(c.instruction_table, operacao)) != 0){
-				//////////////////////////////      DEBUG            //////////////////////////////////////
-				/* cout << "linha " << c.count_line 1<<" instrucao encontrada: " << c.instruction_table[operacao] << endl; */
 				int copy_offset = (i == COPY? 1:0);
 				if(tokens.size() != unsigned(c.se_tem_label + c.inst_size_table[i] - copy_offset)){
 					c.err_type = ERRO_SINTATICO;
@@ -254,16 +252,7 @@ int primeira_passagem(fstream &fonte, Config &c){
 			check_sections_order(c);
 			c.count_line++;
 		}
-
 		set_definitions(c);
-
-		//////////////////////////////      DEBUG            //////////////////////////////////////
-		cout << MAG << " ======================== RESULTADO PRIMEIRA PASSAGEM ========================================" << endl;
-		cout <<MAG<< "TABELA DE SIMBOLOS:" << RESET << endl;
-		for(auto &it:c.simbol_table){
-			cout << it.first << " - " << it.second->val << " - extern? " << it.second->outside << endl;
-		}
-		cout << MAG << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << RESET << endl;
 	}
 	return 1;
 }
@@ -287,8 +276,6 @@ int segunda_passagem(fstream &fonte, Config &c){
 	c.count_line = 1;
 
 	int line_has_label = 0;
-
-	cout << BLU << "SEGUNDA PASSAGEM INICIADA" << RESET <<endl;
 
 	while(!fonte.eof()){
 		getline(fonte, line);
@@ -343,26 +330,6 @@ int segunda_passagem(fstream &fonte, Config &c){
 		if(operacao == END) break;
 		c.count_line++;
 	}
-
-	cout <<MAG<< "MEMORIA" << RESET << endl;
-	for(auto &it:c.memory){
-		cout << it.first << " - " << it.second->val << ", relativo? "<< it.second->relativo <<endl;
-	}
-	if(c.eh_modulo){
-		cout << MAG << "TABELA DEFINICOES" <<RESET <<endl;
-		for(auto &it:c.definition_table){
-			cout << it.first << " - " << it.second << endl;
-		}
-		cout << MAG << "TABELA DE USO" <<RESET <<endl;
-
-		for(auto &it:c.use_table){
-			cout << "Simbolo: "<< it.first << endl << "\t{ ";
-			for(auto &num:it.second){
-				cout << num << " ";
-			}
-			cout <<"}"<<endl;
-		}
-	}
 	return 1;
 }
 
@@ -405,9 +372,6 @@ int gera_arquivo_executavel(Config &c, string filename){
  * verifica se a primeira passagem contem erros, permitindo fazer a segunda passagem
  * **********************************************************************************/
 int check_error_primeira_passagem(Config &c){
-	//
-	// falta verificar se todos os itens marcados como publicos existem
-	//
 	int result = 1;
 	if(c.eh_modulo > 0){
 		if(c.eh_modulo > 1){
@@ -477,6 +441,10 @@ int check_error_segunda_passagem(Config &c){
 	return 1;
 }
 
+/**************************************************************************
+ * se a linha atual coteve erros na primeira passagem, ela nao eh avaliada
+ * na segunda passagem
+ * ***********************************************************************/
 int check_valid_line(Config &c){
 	return !(find(c.lines_with_errors.begin(), c.lines_with_errors.end(), c.count_line) != c.lines_with_errors.end());
 }
@@ -511,6 +479,7 @@ int check_validade_tokens(vector<string> &tokens){
 			if(eh_label(s)){
 				s = s.substr(0, s.length()-1);
 				tem_label = 1;
+				// caso a linha contenha somente o label, entao a operacao nao existe.(obviamente)
 				if(tokens.size()>1)
 					operacao = tokens[1];
 				else
@@ -632,7 +601,7 @@ int check_operandos(Config &c, vector<string> &tokens, int line_has_label){
 		}
 		return 1;
 	}
-	else if(str == PUBLIC) { // para ser declarado como publico, o simbolo precisa existir na tabela de instrucoes
+	else if(str == PUBLIC) { // para ser declarado como publico, o simbolo precisa existir na tabela de sombolos
 		Operand arg_1;
 		get_operando(tokens[1+offset], arg_1);
 		if(!existe_label(c.simbol_table, arg_1.label)){
@@ -663,11 +632,9 @@ int validate_copy(string str, Config &c){
 		return WRONG_ARG_NUM;
 	}
 
-
 	get_operando(v[0], arg_1);
 	get_operando(v[1], arg_2);
 	return (existe_label(c.simbol_table, arg_1.label) && existe_label(c.simbol_table, arg_2.label));
-
 }
 
 /* 
@@ -900,7 +867,7 @@ int exec_diretiva(string &diretiva, vector<string> &argumentos, Config &c, int c
 			log_error(c);
 			return WRONG_ARG_NUM; // EXTERN POSSUI UM LABEL E A DIRTETIVA
 		}
-		set_extern(argumentos[0], c.simbol_table);
+		set_extern(argumentos[0], c.simbol_table); // adiciona para tabela de uso
 		return 0;
 	}
 	else if(diretiva == PUBLIC) {
@@ -949,7 +916,7 @@ int get_address(Config &c, Operand &op){
 }
 
 /************************************************************************
- * joga pra memoria o cadigo da instrucao
+ * joga pra memoria o codigo da instrucao
  * *********************************************************************/
 int executa_instrucao(Config &c){
 	vector<string> args;
@@ -972,14 +939,13 @@ int executa_instrucao(Config &c){
 		split(args[1+offset], del, copy_args);
 		get_operando(copy_args[0], arg_1);
 		get_operando(copy_args[1], arg_2);
-		//estou aqui
-		if(!check_space(c, arg_1) || !check_space(c, arg_2)) {
+		if(!check_space(c, arg_1) || !check_space(c, arg_2)) { // verifica se o space tem espaco suficiente
 			c.err_type = ERRO_SEMANTICO;
 			c.err_subtype = INVALID_ADDRESS;
 			log_error(c);
 			return 0;
 		}
-		else if(check_const(c, arg_2)){
+		else if(check_const(c, arg_2)){ // nao se pode alterar um endereco que seja constante
 			c.err_type = ERRO_SEMANTICO;
 			c.err_subtype = CANT_CHANGE_CONST;
 			log_error(c);
