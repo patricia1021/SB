@@ -11,6 +11,7 @@ OBS: os erros são mostrados no arquivo preprocessado gerado pelo programa;
 
 A execucao do programa segue o padrao utilizado na especificao do trabalho. Ele recebe como entrada um arquivo ".asm" ou um arquivo ".pre" e gera um arquivo ".o"
 <br />
+<br />
 ==============================             MONTADOR                 ====================================<br />
 Compilação do montador:
 Utilize o comando abaixo para compilar o montador:
@@ -23,6 +24,7 @@ Para execução do programa, utilize:
 <br />
 Para preprocessamento, utilize:
 	$ ./NOME -p ARQUIVO ENTRADA.asm ARQUIVO_SAIDA
+<br />
 <br />
 ==============================            LIGADOR                   ===================================<br />
 O ligador recebe como argumentos 2 ou 3 arquivos para serem ligados e 1 nome do arquivo de saída e gera um 1 arquivo executável.
